@@ -15,9 +15,6 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
 
-  static const String AMAZON_BUCKET_NAME = "pm-app-fam/staggering";
-  static const String COGNITO_POOL_ID =
-      "us-east-1:a240343f-b725-438b-9a8c-0b51ca49ba13";
 
   @override
   void initState() {
