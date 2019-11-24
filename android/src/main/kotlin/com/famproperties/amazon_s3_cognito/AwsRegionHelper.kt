@@ -6,10 +6,7 @@ import android.util.Log
 import android.widget.Toast
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferState
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility
+import com.amazonaws.mobileconnectors.s3.transferutility.*
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.Region
@@ -34,7 +31,7 @@ class AwsRegionHelper(private val context: Context, private val onUploadComplete
         val credentialsProvider = CognitoCachingCredentialsProvider(context, IDENTITY_POOL_ID, region1)
         val amazonS3Client = AmazonS3Client(credentialsProvider)
         amazonS3Client.setRegion(com.amazonaws.regions.Region.getRegion(subRegion1))
-
+        TransferNetworkLossHandler.getInstance(context.applicationContext)
         transferUtility = TransferUtility(amazonS3Client, context)
     }
 
@@ -90,7 +87,7 @@ class AwsRegionHelper(private val context: Context, private val onUploadComplete
                 if (state == TransferState.COMPLETED) {
                     onUploadCompleteListener.onUploadComplete(getUploadedUrl(nameOfUploadedFile))
                 }
-                if (state == TransferState.FAILED) {
+                if (state == TransferState.FAILED ||  state == TransferState.WAITING_FOR_NETWORK) {
                     onUploadCompleteListener.onFailed()
                 }
             }
@@ -157,14 +154,45 @@ class AwsRegionHelper(private val context: Context, private val onUploadComplete
         }else if(name == "AP_SOUTHEAST_2"){
             return Regions.AP_SOUTHEAST_2
         } else if(name == "AP_SOUTH_1"){
-            return Regions.GovCloud
-        }else if(name == "AP_SOUTH_1"){
+            return Regions.AP_SOUTH_1
+        }else if(name == "ME_SOUTH_1"){
+            return Regions.ME_SOUTH_1
+        }else if(name == "AP_EAST_1"){
+            return Regions.AP_EAST_1
+        }else if(name == "EU_NORTH_1"){
+            return Regions.EU_NORTH_1
+        }else if(name == "US_GOV_EAST_1"){
+            return Regions.US_GOV_EAST_1
+        }else if(name == "us-gov-west-1"){
             return Regions.GovCloud
         }
 
         return Regions.DEFAULT_REGION
 
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 }

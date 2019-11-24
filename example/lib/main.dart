@@ -3,7 +3,6 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:amazon_s3_cognito/amazon_s3_cognito.dart';
-import 'package:amazon_s3_cognito/aws_region.dart';
 
 void main() => runApp(MyApp());
 
@@ -14,7 +13,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
-
 
   @override
   void initState() {

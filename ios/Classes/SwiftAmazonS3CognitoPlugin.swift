@@ -212,6 +212,8 @@ public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
               return AWSRegionType.APSoutheast2
           } else if(name == "AP_SOUTH_1"){
               return AWSRegionType.APSouth1
+          }else if(name == "ME_SOUTH_1"){
+            return AWSRegionType.MESouth1
           }
 
           return AWSRegionType.Unknown

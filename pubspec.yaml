@@ -1,8 +1,8 @@
 name: amazon_s3_cognito
 description: This plugin allows users to upload and delete image for amazon s3 cognito
-version: 0.1.8
-author: fäm properties
-homepage:
+version: 0.2.3
+author: fäm properties <fateh@famproperties.com>
+homepage: https://github.com/prachiFam/amazon_s3_cognito
 
 environment:
   sdk: ">=2.1.0 <3.0.0"

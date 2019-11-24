@@ -38,11 +38,13 @@ extension AWSRegionType {
         case "ap-south-1": return .APSouth1
         case "cn-central-1": return .CACentral1
         case "cn-northwest-1": return .CNNorthWest1
-        case "us-gov-west-1": return .USGovWest1
+        case "us-gov-west-1": return  .USGovWest1
+        case "me-south-1": return  .MESouth1
         default: return .Unknown
         }
     }
     
+
     /**
      Return the string representation of the AWSRegionType
      
@@ -68,6 +70,7 @@ extension AWSRegionType {
         case .CACentral1 : return "cn-central-1"
         case .CNNorthWest1 : return "cn-northwest-1"
         case .USGovWest1 : return "us-gov-west-1"
+        case .MESouth1 : return  "me-south-1"
         default: return "Unknown"
         }
        
@@ -86,6 +89,7 @@ extension AWSRegionType {
         case .SAEast1: return "sa"
         case .CNNorth1: return "cn"
         case .USGovWest1: return "us-gov"
+        case .MESouth1: return "me"
         default: return "Unknown"
         }
     }
@@ -108,6 +112,7 @@ extension AWSRegionType {
         case .SAEast1: return "Sao Paulo"
         case .CNNorth1: return "Beijing"
         case .USGovWest1: return "US"
+        case .MESouth1: return "ME"
         default: return "Unknown"
         }
     }
@@ -130,6 +135,7 @@ extension AWSRegionType {
         case .SAEast1: return "South America (Sao Paulo)"
         case .CNNorth1: return "China (Beijing)"
         case .USGovWest1: return "AWS GovCloud (US)"
+        case .MESouth1: return "Me South 1"
         default: return "Unknown"
         }
     }
@@ -146,6 +152,7 @@ extension AWSRegionType {
         case .APNortheast1, .APNortheast2: return "Northeast"
         case .APSoutheast1, .APSoutheast2: return "Southeast"
         case .CNNorth1: return "North"
+        case .MESouth1: return "MESouth1"
         default: return "Unknown"
         }
     }
@@ -158,6 +165,7 @@ extension AWSRegionType {
         switch self {
         case .USEast1, .USWest1, .EUWest1, .EUCentral1, .APNortheast1, .APSoutheast1, .SAEast1, .CNNorth1, .USGovWest1: return 1
         case .USWest2, .APNortheast2, .APSoutheast2: return 2
+        case .MESouth1: return 3
         default: return 0
         }
     }

@@ -40,7 +40,11 @@ class AmazonS3CognitoPlugin private constructor(private val context: Context) : 
                   override fun onFailed() {
 
                       System.out.println("\n❌ upload failed")
-                      result.success("Failed")
+                      try{
+                          result.success("Failed")
+                      }catch (e:Exception){
+
+                      }
                   }
 
                   override fun onUploadComplete(@NotNull imageUrl: String) {
@@ -59,7 +63,12 @@ class AmazonS3CognitoPlugin private constructor(private val context: Context) : 
               awsRegionHelper = AwsRegionHelper(context, object : AwsRegionHelper.OnUploadCompleteListener {
                   override fun onFailed() {
                       System.out.println("\n❌ upload failed")
-                      result.success("Failed")
+                      try{
+                          result.success("Failed")
+                      }catch (e:Exception){
+
+                      }
+
                   }
 
                   override fun onUploadComplete(@NotNull imageUrl: String) {
@@ -78,12 +87,22 @@ class AmazonS3CognitoPlugin private constructor(private val context: Context) : 
 
                   override fun onFailed() {
                       System.out.println("\n❌ delete failed")
-                      result.success("Failed")
+                      try{
+                          result.success("Failed")
+                      }catch (e:Exception){
+
+                      }
+
                   }
 
                   override fun onUploadComplete(@NotNull imageUrl: String) {
                       System.out.println("\n✅ delete complete: $imageUrl")
-                      result.success(imageUrl)
+
+                      try{
+                          result.success(imageUrl)
+                      }catch (e:Exception){
+
+                      }
                   }
               }, bucket!!, identity!!, fileName!!, region!!, subRegion!!)
               awsRegionHelper!!.deleteImage()
