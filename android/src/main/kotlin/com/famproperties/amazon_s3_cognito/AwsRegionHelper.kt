@@ -45,8 +45,8 @@ class AwsRegionHelper(private val context: Context, private val onUploadComplete
 
     private fun initRegion(){
 
-        region1 = getRegionFor(REGION);
-        subRegion1 = getRegionFor(SUB_REGION);
+        region1 = getRegionFor(REGION)
+        subRegion1 = getRegionFor(SUB_REGION)
 
     }
 
@@ -56,6 +56,7 @@ class AwsRegionHelper(private val context: Context, private val onUploadComplete
         initRegion()
 
         val credentialsProvider = CognitoCachingCredentialsProvider(context, IDENTITY_POOL_ID, region1)
+        TransferNetworkLossHandler.getInstance(context.applicationContext)
 
         val amazonS3Client = AmazonS3Client(credentialsProvider)
         amazonS3Client.setRegion(com.amazonaws.regions.Region.getRegion(subRegion1))
@@ -73,6 +74,7 @@ class AwsRegionHelper(private val context: Context, private val onUploadComplete
         initRegion()
 
         val credentialsProvider = CognitoCachingCredentialsProvider(context, IDENTITY_POOL_ID, region1)
+        TransferNetworkLossHandler.getInstance(context.applicationContext)
 
         val amazonS3Client = AmazonS3Client(credentialsProvider)
         amazonS3Client.setRegion(com.amazonaws.regions.Region.getRegion(subRegion1))
