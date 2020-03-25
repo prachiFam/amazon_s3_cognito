@@ -6,10 +6,7 @@ import android.util.Log
 import android.widget.Toast
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferState
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility
+import com.amazonaws.mobileconnectors.s3.transferutility.*
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.s3.AmazonS3Client
 
@@ -25,8 +22,9 @@ class AwsHelper(private val context: Context, private val onUploadCompleteListen
     init {
         val credentialsProvider = CognitoCachingCredentialsProvider(context, IDENTITY_POOL_ID, Regions.US_EAST_1)
 
-        val amazonS3Client = AmazonS3Client(credentialsProvider)
+        val amazonS3Client = AmazonS3Client(credentialsProvider,com.amazonaws.regions.Region.getRegion(Regions.US_EAST_1))
         amazonS3Client.setRegion(com.amazonaws.regions.Region.getRegion(Regions.US_EAST_1))
+        //transferUtility = TransferUtility(amazonS3Client,context.applicationContext,BUCKET_NAME, TransferUtilityOptions());
         transferUtility = TransferUtility(amazonS3Client, context)
     }
 
@@ -60,6 +58,7 @@ class AwsHelper(private val context: Context, private val onUploadCompleteListen
 
             override fun onProgressChanged(id: Int, bytesCurrent: Long, bytesTotal: Long) {}
             override fun onError(id: Int, ex: Exception) {
+                onUploadCompleteListener.onFailed()
                 Log.e(TAG, "error in upload id [ " + id + " ] : " + ex.message)
             }
         })

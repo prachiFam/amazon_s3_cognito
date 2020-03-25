@@ -1,18 +1,15 @@
 package com.famproperties.amazon_s3_cognito
 
 import android.content.Context
-import android.content.Intent
 import android.util.Log
-import android.widget.Toast
+
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider
 import com.amazonaws.mobileconnectors.s3.transferutility.*
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.s3.AmazonS3Client
-import com.amazonaws.services.s3.model.Region
 import java.io.File
 import java.io.UnsupportedEncodingException
-import java.util.Locale
 
 
 class AwsRegionHelper(private val context: Context, private val onUploadCompleteListener: OnUploadCompleteListener,
@@ -172,29 +169,5 @@ class AwsRegionHelper(private val context: Context, private val onUploadComplete
         return Regions.DEFAULT_REGION
 
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
