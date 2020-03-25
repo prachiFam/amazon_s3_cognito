@@ -31,7 +31,41 @@ public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
               let uploadRequest = AWSS3TransferManagerUploadRequest()
               uploadRequest?.bucket = bucket
               uploadRequest?.key = nameGenerator()
-              uploadRequest?.contentType = "image/jpeg"
+
+            var contentType = "image/jpeg"
+            if(imagePath!.contains(".")){
+                var index = imagePath!.lastIndex(of: ".")
+                index = imagePath!.index(index!, offsetBy: 1)
+                if(index != nil){
+                    let extention = String(imagePath![index!...])
+                    print("extension"+extention);
+                    if(extention.lowercased().contains("png") ||
+                    extention.lowercased().contains("jpg") ||
+                        extention.lowercased().contains("jpeg") ){
+                        contentType = "image/"+extention
+                    }else{
+                        if(contentType.contains("pdf")){
+                             contentType = "application/pdf";
+                        }else{
+                             contentType = "application/*";
+                        }
+
+                    }
+
+                }
+            }
+
+            uploadRequest?.contentType = contentType
+
+//            if(imagePath!.lowercased().contains("jpeg") ||
+//                imagePath!.lowercased().contains("png")){
+//                uploadRequest?.contentType = "image/jpeg"
+//
+//            }else if(imagePath!.lowercased().contains("pdf")){
+//                 uploadRequest?.contentType = "application/pdf"
+//            }
+
+              //uploadRequest?.contentType = "image/jpeg"
               uploadRequest?.body = fileUrl as URL
               uploadRequest?.acl = .publicReadWrite
 
@@ -81,6 +115,9 @@ public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
           let region = arguments!["region"] as? String
           let subRegion = arguments!["subRegion"] as? String
 
+        let contentTypeParam = arguments!["contentType"] as? String
+
+
           print("region" + region!)
 
           print("subregion " + subRegion!)
@@ -95,9 +132,48 @@ public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
           let uploadRequest = AWSS3TransferManagerUploadRequest()
           uploadRequest?.bucket = bucket
           uploadRequest?.key = fileName
-          uploadRequest?.contentType = "image/jpeg"
+
+
+        var contentType = "image/jpeg"
+        if(contentTypeParam != nil &&
+            contentTypeParam!.count > 0){
+            contentType = contentTypeParam!
+        }
+
+        if(contentTypeParam == nil || contentTypeParam!.count == 0 &&  fileName!.contains(".")){
+                       var index = fileName!.lastIndex(of: ".")
+                       index = fileName!.index(index!, offsetBy: 1)
+                       if(index != nil){
+                           let extention = String(fileName![index!...])
+                           print("extension"+extention);
+                           if(extention.lowercased().contains("png") ||
+                           extention.lowercased().contains("jpg") ||
+                               extention.lowercased().contains("jpeg") ){
+                               contentType = "image/"+extention
+                           }else{
+
+                            if(extention.lowercased().contains("pdf")){
+                                contentType = "application/pdf"
+                                }else{
+                                contentType = "application/*"
+                                }
+
+                           }
+
+                       }
+                   }
+
+        uploadRequest?.contentType = contentType
+//        if(fileName!.lowercased().contains("jpeg") ||
+//            fileName!.lowercased().contains("png")){
+//            uploadRequest?.contentType = "image/jpeg"
+//
+//        }else if(fileName!.lowercased().contains("pdf")){
+//             uploadRequest?.contentType = "application/pdf"
+//        }
+
           uploadRequest?.body = fileUrl as URL
-          uploadRequest
+
           uploadRequest?.acl = .publicReadWrite
 
 

@@ -29,11 +29,14 @@ The package is android-x compatible
 import 'package:amazon_s3_cognito/amazon_s3_cognito.dart';
 import 'package:amazon_s3_cognito/aws_region.dart';
 
+//this method only supports image upload. 
 String uploadedImageUrl = await AmazonS3Cognito.uploadImage(
           _image.path, BUCKET_NAME, IDENTITY_POOL_ID);
           
 
 //Use the below code to specify the region and sub region for image upload
+//Also this method allows to upload all file type including images and pdf etc.
+//We recommend to use this method always. 
 String uploadedImageUrl = await AmazonS3Cognito.upload(
             _image.path,
             BUCKET_NAME,

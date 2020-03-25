@@ -12,4 +12,11 @@ updated readme to contain proper instruction set
 ## 0.2.1
 updated kotlin version in android to resolve conflicts with flutter version 1.9 and updated android studio version.
 ## 0.2.3
-added new regions into the app.
+added new regions into the package.
+
+## 0.2.4
+plugin now supports pdf and other file type uploads.
+Other file uploads were working properly on Android before, but they were broken for IOS, so we have fixed those now too.
+NOTE **** Use upload method in order to upload files other than images.
+
+
