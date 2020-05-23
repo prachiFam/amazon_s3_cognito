@@ -270,7 +270,7 @@ public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
 
           AWSS3.register(with: configuration!, forKey: "defaultKey")
           let s3 = AWSS3.s3(forKey: "defaultKey")
-          let listObjectsRequest = AWSS3ListObjectsRequest ()
+          let listObjectsRequest = AWSS3ListObjectsRequest()
           listObjectsRequest?.bucket = bucket // bucket name
           listObjectsRequest?.prefix = filePrefix;
 
