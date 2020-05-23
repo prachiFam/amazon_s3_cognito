@@ -94,6 +94,8 @@ public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
               uploadImageForRegion(call,result: result)
           }else if(call.method.elementsEqual("deleteImage")){
               deleteImage(call,result: result)
+          }else if(call.method.elementsEqual("listFiles")){
+              listFiles(call,result: result)
           }
       }
 
@@ -242,6 +244,47 @@ public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
               return nil
           }
 
+
+      }
+
+      func listFiles(_ call: FlutterMethodCall, result: @escaping FlutterResult){
+          let arguments = call.arguments as? NSDictionary
+          let bucket = arguments!["bucket"] as? String
+          let identity = arguments!["identity"] as? String
+          let filePrefix = arguments!["prefix"] as? String
+          let region = arguments!["region"] as? String
+          let subRegion = arguments!["subRegion"] as? String
+
+
+          if(region != nil && subRegion != nil){
+              initRegions(region: region!, subRegion: subRegion!)
+          }
+
+          let credentialsProvider = AWSCognitoCredentialsProvider(
+              regionType: region1,
+              identityPoolId: identity!)
+          let configuration = AWSServiceConfiguration(
+              region: subRegion1,
+              credentialsProvider: credentialsProvider)
+          AWSServiceManager.default().defaultServiceConfiguration = configuration
+
+          AWSS3.register(with: configuration!, forKey: "defaultKey")
+          let s3 = AWSS3.s3(forKey: "defaultKey")
+          let listObjectRequest = AWSS3ListObjectsRequest ()
+          listObjectsRequest?.bucket = bucket // bucket name
+          listObjectsRequest?.prefix = filePrefix;
+
+          s3.listObjects(listObjectRequest!).continueWith { (task:AWSTask) -> AnyObject? in
+              if let error = task.error {
+                  print("Error occurred: \(error)")
+                  result("Error occurred: \(error)")
+                  return nil
+              }
+
+              let keys = task.result?.contents!.map({ $0.key })
+              result(keys)
+              return nil
+          }
 
       }
 
