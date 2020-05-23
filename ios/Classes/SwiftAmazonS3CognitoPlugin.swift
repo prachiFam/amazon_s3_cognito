@@ -269,10 +269,11 @@ public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
           AWSServiceManager.default().defaultServiceConfiguration = configuration
 
           AWSS3.register(with: configuration!, forKey: "defaultKey")
+
           let s3 = AWSS3.s3(forKey: "defaultKey")
           let listObjectsRequest = AWSS3ListObjectsRequest()
           listObjectsRequest?.bucket = bucket // bucket name
-          listObjectsRequest?.prefix = filePrefix;
+          listObjectsRequest?.prefix = filePrefix // File prefix
 
           s3.listObjects(listObjectsRequest!).continueWith { (task:AWSTask) -> AnyObject? in
               if let error = task.error {
