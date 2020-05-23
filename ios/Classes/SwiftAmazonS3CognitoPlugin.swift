@@ -178,10 +178,10 @@ public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
 
 
           let credentialsProvider = AWSCognitoCredentialsProvider(
-              regionType: region1,
+              regionType: AWSRegionType.regionTypeForString(regionString: region!),
               identityPoolId: identity!)
           let configuration = AWSServiceConfiguration(
-              region: subRegion1,
+              region: AWSRegionType.regionTypeForString(regionString: subRegion!),
               credentialsProvider: credentialsProvider)
           AWSServiceManager.default().defaultServiceConfiguration = configuration
 
@@ -195,7 +195,7 @@ public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
               if task.result != nil {
 
 
-                  imageAmazonUrl = "https://s3-" + self.subRegion1.stringValue +  ".amazonaws.com/\(bucket!)/\(uploadRequest!.key!)"
+                  imageAmazonUrl = "https://s3-" + subRegion! +  ".amazonaws.com/\(bucket!)/\(uploadRequest!.key!)"
                   print("✅ Upload successed (\(imageAmazonUrl))")
               } else {
                   print("❌ Unexpected empty result.")
