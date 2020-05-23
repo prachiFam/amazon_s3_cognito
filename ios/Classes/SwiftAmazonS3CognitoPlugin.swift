@@ -270,11 +270,11 @@ public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
 
           AWSS3.register(with: configuration!, forKey: "defaultKey")
           let s3 = AWSS3.s3(forKey: "defaultKey")
-          let listObjectRequest = AWSS3ListObjectsRequest ()
+          let listObjectsRequest = AWSS3ListObjectsRequest ()
           listObjectsRequest?.bucket = bucket // bucket name
           listObjectsRequest?.prefix = filePrefix;
 
-          s3.listObjects(listObjectRequest!).continueWith { (task:AWSTask) -> AnyObject? in
+          s3.listObjects(listObjectsRequest!).continueWith { (task:AWSTask) -> AnyObject? in
               if let error = task.error {
                   print("Error occurred: \(error)")
                   result("Error occurred: \(error)")
