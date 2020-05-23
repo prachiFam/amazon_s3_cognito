@@ -261,10 +261,10 @@ public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
           }
 
           let credentialsProvider = AWSCognitoCredentialsProvider(
-              regionType: region1,
+              regionType: AWSRegionType.regionTypeForString(regionString: region!),
               identityPoolId: identity!)
           let configuration = AWSServiceConfiguration(
-              region: subRegion1,
+              region: AWSRegionType.regionTypeForString(regionString: subRegion!),
               credentialsProvider: credentialsProvider)
           AWSServiceManager.default().defaultServiceConfiguration = configuration
 
