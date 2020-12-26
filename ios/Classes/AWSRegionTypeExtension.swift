@@ -18,7 +18,6 @@ extension AWSRegionType {
      - Returns: A new AWSRegionType for the given string, Unknown if no region was found.
      */
     static func regionTypeForString(regionString: String) ->
-        
         AWSRegionType {
         switch regionString {
         case "us-east-1": return .USEast1
