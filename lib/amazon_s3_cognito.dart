@@ -25,16 +25,23 @@ class AmazonS3Cognito {
 
   static Future<String> upload(String filepath, String bucket, String identity,
       String imageName, String region, String subRegion) async {
-    final Map<String, dynamic> params = <String, dynamic>{
-      'filePath': filepath,
-      'bucket': bucket,
-      'identity': identity,
-      'imageName': imageName,
-      'region': region,
-      'subRegion': subRegion
-    };
-    final String imagePath = await _channel.invokeMethod('uploadImage', params);
-    return imagePath;
+    print('Region: ' + region + ' subRegion: ' + subRegion);
+    try {
+      final Map<String, dynamic> params = <String, dynamic>{
+        'filePath': filepath,
+        'bucket': bucket,
+        'identity': identity,
+        'imageName': imageName,
+        'region': region,
+        'subRegion': subRegion
+      };
+      final String imagePath =
+          await _channel.invokeMethod('uploadImage', params);
+      return imagePath;
+    } on PlatformException catch (e) {
+      print(e.toString());
+    }
+    return '';
   }
 
   static Future<String> delete(String bucket, String identity, String imageName,
@@ -50,8 +57,13 @@ class AmazonS3Cognito {
     return imagePath;
   }
 
-  static Future<List<String>> listFiles(String bucket, String identity, String prefix,
-      String region, String subRegion) async {
+  static Future<List<String>> listFiles(
+      String bucket,
+      String identity,
+      String prefix,
+      String region,
+      String subRegion,
+      String cloudFrontWebUrl) async {
     final Map<String, dynamic> params = <String, dynamic>{
       'bucket': bucket,
       'identity': identity,
@@ -62,11 +74,11 @@ class AmazonS3Cognito {
     List<String> files = new List();
     try {
       List<dynamic> keys = await _channel.invokeMethod('listFiles', params);
-      for(String key in keys) {
-        files.add("https://s3-$region.amazonaws.com/$bucket/$key");
+      for (String key in keys) {
+        files.add("$cloudFrontWebUrl$bucket/$key");
       }
     } on PlatformException catch (e) {
-      print (e.toString());
+      print(e.toString());
     }
 
     return files;

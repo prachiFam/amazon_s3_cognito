@@ -7,7 +7,7 @@ import AWSCore
 public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
 
    var region1:AWSRegionType = AWSRegionType.USEast1
-   var subRegion1:AWSRegionType = AWSRegionType.EUWest1
+   var subRegion1:AWSRegionType = AWSRegionType.USEast1
 
 
 
@@ -57,15 +57,6 @@ public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
 
             uploadRequest?.contentType = contentType
 
-//            if(imagePath!.lowercased().contains("jpeg") ||
-//                imagePath!.lowercased().contains("png")){
-//                uploadRequest?.contentType = "image/jpeg"
-//
-//            }else if(imagePath!.lowercased().contains("pdf")){
-//                 uploadRequest?.contentType = "application/pdf"
-//            }
-
-              //uploadRequest?.contentType = "image/jpeg"
               uploadRequest?.body = fileUrl as URL
               uploadRequest?.acl = .publicReadWrite
 
@@ -91,7 +82,7 @@ public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
                   return nil
               }
           }else if(call.method.elementsEqual("uploadImage")){
-              uploadImageForRegion(call,result: result)
+              uploadImageForRegionUtility(call,result: result)
           }else if(call.method.elementsEqual("deleteImage")){
               deleteImage(call,result: result)
           }else if(call.method.elementsEqual("listFiles")){
@@ -108,6 +99,76 @@ public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
       }
 
 
+    @objc lazy var transferUtility = {
+        AWSS3TransferUtility.default()
+    }()
+
+    // use AWS Transfer Utility
+    func uploadImageForRegionUtility(_ call: FlutterMethodCall, result: @escaping FlutterResult){
+        let arguments = call.arguments as? NSDictionary
+        let imagePath = arguments!["filePath"] as? String
+        let bucket = arguments!["bucket"] as? String
+        let identity = arguments!["identity"] as? String
+        _ = arguments!["imageName"] as? String
+        let region = arguments!["region"] as? String
+        let subRegion = arguments!["subRegion"] as? String
+
+
+        let image    = UIImage(contentsOfFile: imagePath!)
+        let completionHandler : AWSS3TransferUtilityUploadCompletionHandlerBlock? =
+            { (task, error) -> Void in
+
+                if ((error) != nil)
+                {
+                  print("Upload failed")
+                }
+                else
+                {
+                  print("File uploaded successfully")
+                }
+            }
+
+        
+        guard let data = image!.jpegData(compressionQuality: 0.5) else { return  }
+
+        let credentialsProvider = AWSCognitoCredentialsProvider(
+            regionType: AWSRegionType.regionTypeForString(regionString: region!),
+            identityPoolId: identity!)
+        let configuration = AWSServiceConfiguration(
+            region: AWSRegionType.regionTypeForString(regionString: subRegion!),
+            credentialsProvider: credentialsProvider)
+        
+    AWSServiceManager.default().defaultServiceConfiguration = configuration
+        let expression = AWSS3TransferUtilityUploadExpression()
+        expression.progressBlock = {(task, progress) in DispatchQueue.main.async(execute: {
+                // Do something e.g. Update a progress bar.
+            })
+        }
+
+    AWSS3TransferUtility.default().uploadData(
+        data,
+        bucket: bucket!,
+        key: imagePath!,
+        contentType: "image/jpg",
+        expression: expression) { task, error in
+            DispatchQueue.main.async {
+                completionHandler!(task, error)
+            }
+            print("Success")
+
+        }.continueWith { task -> AnyObject? in
+            if let error = task.error {
+                DispatchQueue.main.async {
+                    completionHandler!(task.result!, error)
+                }
+            }
+            return nil
+    }
+}
+    
+
+
+
       func uploadImageForRegion(_ call: FlutterMethodCall, result: @escaping FlutterResult){
           let arguments = call.arguments as? NSDictionary
           let imagePath = arguments!["filePath"] as? String
@@ -119,14 +180,9 @@ public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
 
         let contentTypeParam = arguments!["contentType"] as? String
 
-
-          print("region" + region!)
-
+          print("region " + region!)
           print("subregion " + subRegion!)
-          if(region != nil && subRegion != nil){
-              initRegions(region: region!, subRegion: subRegion!)
-          }
-
+          print("bucket " + bucket!)
 
           var imageAmazonUrl = ""
           let fileUrl = NSURL(fileURLWithPath: imagePath!)
@@ -165,14 +221,7 @@ public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
                        }
                    }
 
-        uploadRequest?.contentType = contentType
-//        if(fileName!.lowercased().contains("jpeg") ||
-//            fileName!.lowercased().contains("png")){
-//            uploadRequest?.contentType = "image/jpeg"
-//
-//        }else if(fileName!.lowercased().contains("pdf")){
-//             uploadRequest?.contentType = "application/pdf"
-//        }
+          uploadRequest?.contentType = contentType
 
           uploadRequest?.body = fileUrl as URL
 
@@ -185,18 +234,15 @@ public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
           let configuration = AWSServiceConfiguration(
               region: AWSRegionType.regionTypeForString(regionString: subRegion!),
               credentialsProvider: credentialsProvider)
+          
           AWSServiceManager.default().defaultServiceConfiguration = configuration
-
 
           AWSS3TransferManager.default().upload(uploadRequest!).continueWith { (task) -> AnyObject? in
               if let error = task.error {
                   print("❌ Upload failed (\(error))")
               }
 
-
               if task.result != nil {
-
-
                   imageAmazonUrl = "https://s3-" + subRegion! +  ".amazonaws.com/\(bucket!)/\(uploadRequest!.key!)"
                   print("✅ Upload successed (\(imageAmazonUrl))")
               } else {

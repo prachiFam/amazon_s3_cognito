@@ -135,7 +135,7 @@ class AwsRegionHelper(private val context: Context,
 
     private fun  getRegionFor(name:String):Regions{
 
-        if(name == "US_EAST_1"){
+        if(name == "US_EAST_1" || name == "us-east-1"){
             return Regions.US_EAST_1
         }else if(name == "AP_SOUTHEAST_1"){
             return Regions.AP_SOUTHEAST_1
