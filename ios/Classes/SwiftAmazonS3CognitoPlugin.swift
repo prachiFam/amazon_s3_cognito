@@ -109,22 +109,31 @@ public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
         let imagePath = arguments!["filePath"] as? String
         let bucket = arguments!["bucket"] as? String
         let identity = arguments!["identity"] as? String
-        _ = arguments!["imageName"] as? String
+        let fileName = arguments!["imageName"] as? String
         let region = arguments!["region"] as? String
         let subRegion = arguments!["subRegion"] as? String
 
 
         let image    = UIImage(contentsOfFile: imagePath!)
+        var imageAmazonUrl = ""
         let completionHandler : AWSS3TransferUtilityUploadCompletionHandlerBlock? =
             { (task, error) -> Void in
 
                 if ((error) != nil)
                 {
                   print("Upload failed")
+
+                  result("failed")
+                  return
                 }
                 else
                 {
                   print("File uploaded successfully")
+                  imageAmazonUrl = "https://s3-" + subRegion! +  ".amazonaws.com/\(fileName!)"
+                  print("✅ Upload successed (\(imageAmazonUrl))")
+
+                  result(imageAmazonUrl)
+                  return
                 }
             }
 
@@ -148,7 +157,7 @@ public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
     AWSS3TransferUtility.default().uploadData(
         data,
         bucket: bucket!,
-        key: imagePath!,
+        key: fileName!,
         contentType: "image/jpg",
         expression: expression) { task, error in
             DispatchQueue.main.async {
