@@ -49,4 +49,26 @@ class AmazonS3Cognito {
     final String imagePath = await _channel.invokeMethod('deleteImage', params);
     return imagePath;
   }
+
+  static Future<List<String>> listFiles(String bucket, String identity, String prefix,
+      String region, String subRegion) async {
+    final Map<String, dynamic> params = <String, dynamic>{
+      'bucket': bucket,
+      'identity': identity,
+      'prefix': prefix,
+      'region': region,
+      'subRegion': subRegion
+    };
+    List<String> files = new List();
+    try {
+      List<dynamic> keys = await _channel.invokeMethod('listFiles', params);
+      for(String key in keys) {
+        files.add("https://s3-$region.amazonaws.com/$bucket/$key");
+      }
+    } on PlatformException catch (e) {
+      print (e.toString());
+    }
+
+    return files;
+  }
 }

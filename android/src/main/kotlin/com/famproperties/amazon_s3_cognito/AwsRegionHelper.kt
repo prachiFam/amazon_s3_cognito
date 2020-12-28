@@ -1,20 +1,23 @@
 package com.famproperties.amazon_s3_cognito
 
 import android.content.Context
+import android.os.AsyncTask
 import android.util.Log
 
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider
 import com.amazonaws.mobileconnectors.s3.transferutility.*
+import com.amazonaws.regions.Region
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.s3.AmazonS3Client
+import com.amazonaws.services.s3.model.S3ObjectSummary
 import java.io.File
 import java.io.UnsupportedEncodingException
 
 
-class AwsRegionHelper(private val context: Context, private val onUploadCompleteListener: OnUploadCompleteListener,
+class AwsRegionHelper(private val context: Context,
                       private val BUCKET_NAME: String, private val IDENTITY_POOL_ID: String,
-                      private val IMAGE_NAME: String,private val REGION: String, private val SUB_REGION: String) {
+                      private val REGION: String, private val SUB_REGION: String) {
 
     private var transferUtility: TransferUtility
     private var nameOfUploadedFile: String? = null
@@ -48,7 +51,7 @@ class AwsRegionHelper(private val context: Context, private val onUploadComplete
     }
 
     @Throws(UnsupportedEncodingException::class)
-    fun deleteImage(): String {
+    fun deleteImage(imageName: String, onUploadCompleteListener: OnUploadCompleteListener): String {
 
         initRegion()
 
@@ -58,15 +61,15 @@ class AwsRegionHelper(private val context: Context, private val onUploadComplete
         val amazonS3Client = AmazonS3Client(credentialsProvider)
         amazonS3Client.setRegion(com.amazonaws.regions.Region.getRegion(subRegion1))
         Thread(Runnable{
-            amazonS3Client.deleteObject(BUCKET_NAME, IMAGE_NAME)
+            amazonS3Client.deleteObject(BUCKET_NAME, imageName)
         }).start()
         onUploadCompleteListener.onUploadComplete("Success")
-        return IMAGE_NAME
+        return imageName
 
     }
 
     @Throws(UnsupportedEncodingException::class)
-    fun uploadImage(image: File): String {
+    fun uploadImage(image: File, imageName: String, onUploadCompleteListener: OnUploadCompleteListener): String {
 
         initRegion()
 
@@ -77,7 +80,7 @@ class AwsRegionHelper(private val context: Context, private val onUploadComplete
         amazonS3Client.setRegion(com.amazonaws.regions.Region.getRegion(subRegion1))
         transferUtility = TransferUtility(amazonS3Client, context)
 
-        nameOfUploadedFile = IMAGE_NAME;
+        nameOfUploadedFile = imageName;
 
         val transferObserver = transferUtility.upload(BUCKET_NAME, nameOfUploadedFile, image)
 
@@ -101,6 +104,16 @@ class AwsRegionHelper(private val context: Context, private val onUploadComplete
         return uploadedUrl
     }
 
+    fun listFiles(prefix: String?, onListFilesCompleteListener: OnListFilesCompleteListener) {
+
+        initRegion()
+
+        val credentialsProvider = CognitoCachingCredentialsProvider(context, IDENTITY_POOL_ID, Regions.fromName(REGION))
+        val amazonS3Client = AmazonS3Client(credentialsProvider, Region.getRegion(REGION))
+
+        ListFilesTask(amazonS3Client, BUCKET_NAME, prefix, onListFilesCompleteListener).execute()
+    }
+
     @Throws(UnsupportedEncodingException::class)
     fun clean(filePath: String): String {
         return filePath.replace("[^.A-Za-z0-9]".toRegex(), "")
@@ -109,6 +122,10 @@ class AwsRegionHelper(private val context: Context, private val onUploadComplete
     interface OnUploadCompleteListener {
         fun onUploadComplete(imageUrl: String)
         fun onFailed()
+    }
+
+    interface OnListFilesCompleteListener {
+        fun onListFiles(output: List<String>)
     }
 
     companion object {
@@ -170,4 +187,34 @@ class AwsRegionHelper(private val context: Context, private val onUploadComplete
 
     }
 
+    private inner class ListFilesTask : AsyncTask<Void, Void, List<S3ObjectSummary>> {
+        private val s3: AmazonS3Client
+        private val bucket: String
+        private val prefix: String?
+        private val onListFilesCompleteListener: OnListFilesCompleteListener
+
+        private var s3ObjList: List<S3ObjectSummary>? = null
+
+        constructor(s3: AmazonS3Client, bucket: String, prefix: String?, onListFilesCompleteListener: OnListFilesCompleteListener) : super () {
+            this.s3 = s3
+            this.bucket = bucket
+            this.prefix = prefix
+            this.onListFilesCompleteListener = onListFilesCompleteListener
+        }
+
+        override fun doInBackground(vararg inputs: Void): List<S3ObjectSummary>? {
+            // Queries files in the bucket from S3.
+            if (prefix.isNullOrBlank()) {
+                s3ObjList = s3?.listObjects(bucket)?.getObjectSummaries()
+            } else {
+                s3ObjList = s3?.listObjects(bucket, prefix)?.getObjectSummaries()
+            }
+            return s3ObjList
+        }
+
+        override fun onPostExecute(result: List<S3ObjectSummary>?) {
+            result?.map { it.key }?.let { onListFilesCompleteListener.onListFiles(it) }
+        }
+
+    }
 }
