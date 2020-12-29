@@ -3,10 +3,15 @@
 
 Amazon S3 plugin for Flutter
 
-Unofficial Amazon S3 plugin written in Dart for Flutter.
+Unofficial Amazon S3 plugin written in Dart for Flutter. 
+
+Only supports Amazon SDK up to 2.20(excluded), since starting with 2.20, the SDK dropped the deprecated 
+"AWSS3TransferManager" which is still in use within this plugin.
+
+https://github.com/aws-amplify/aws-sdk-ios/releases/tag/2.20.0 
 
 The plugin is extension if flutter-amazon-s3 plugin which can be found here 
-https://pub.dev/packages/flutter_amazon_s3. This plugin adds image delete functionality and also
+https://pub.dev/packages/flutter_amazon_s3. This plugin adds image list and delete functionality and also
 it allows user to upload image when region and sub-region are different.
 
 Plugin in maintained by fäm properties<no-reply@famproperties.com>.
@@ -53,7 +58,13 @@ String uploadedImageUrl = await AmazonS3Cognito.upload(
             AwsRegion.US_EAST_1,
             AwsRegion.AP_SOUTHEAST_1)
             
-            
+//use below code to list files
+ List<String> files = await AmazonS3Cognito.listFiles(
+            BUCKET_NAME,
+            IDENTITY_POOL_ID,
+            PREFIX,
+            AwsRegion.US_EAST_1,
+            AwsRegion.AP_SOUTHEAST_1)
         
 
 ```

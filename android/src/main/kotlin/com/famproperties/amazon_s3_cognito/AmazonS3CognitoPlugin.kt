@@ -31,6 +31,7 @@ class AmazonS3CognitoPlugin private constructor(private val context: Context) : 
       val fileName = call.argument<String>("imageName")
       val region = call.argument<String>("region")
       val subRegion = call.argument<String>("subRegion")
+      val prefix = call.argument<String>("prefix")
 
 
       if (call.method.equals("uploadImageToAmazon")) {
@@ -60,7 +61,8 @@ class AmazonS3CognitoPlugin private constructor(private val context: Context) : 
       } else if (call.method.equals("uploadImage")) {
           val file = File(filePath)
           try {
-              awsRegionHelper = AwsRegionHelper(context, object : AwsRegionHelper.OnUploadCompleteListener {
+              awsRegionHelper = AwsRegionHelper(context, bucket!!, identity!!, region!!, subRegion!!)
+              awsRegionHelper!!.uploadImage(file, fileName!!, object : AwsRegionHelper.OnUploadCompleteListener {
                   override fun onFailed() {
                       System.out.println("\n❌ upload failed")
                       try{
@@ -75,15 +77,15 @@ class AmazonS3CognitoPlugin private constructor(private val context: Context) : 
                       System.out.println("\n✅ upload complete: $imageUrl")
                       result.success(imageUrl)
                   }
-              }, bucket!!, identity!!, fileName!!, region!!, subRegion!!)
-              awsRegionHelper!!.uploadImage(file)
+              })
           } catch (e: UnsupportedEncodingException) {
               e.printStackTrace()
           }
 
       } else if (call.method.equals("deleteImage")) {
           try {
-              awsRegionHelper = AwsRegionHelper(context, object : AwsRegionHelper.OnUploadCompleteListener{
+              awsRegionHelper = AwsRegionHelper(context, bucket!!, identity!!, region!!, subRegion!!)
+              awsRegionHelper!!.deleteImage(fileName!!, object : AwsRegionHelper.OnUploadCompleteListener{
 
                   override fun onFailed() {
                       System.out.println("\n❌ delete failed")
@@ -104,12 +106,24 @@ class AmazonS3CognitoPlugin private constructor(private val context: Context) : 
 
                       }
                   }
-              }, bucket!!, identity!!, fileName!!, region!!, subRegion!!)
-              awsRegionHelper!!.deleteImage()
+              })
           } catch (e: UnsupportedEncodingException) {
               e.printStackTrace()
           }
 
+      } else if (call.method.equals("listFiles")) {
+          try {
+              awsRegionHelper = AwsRegionHelper(context, bucket!!, identity!!, region!!, subRegion!!)
+              val files = awsRegionHelper!!.listFiles(prefix, object : AwsRegionHelper.OnListFilesCompleteListener {
+                  override fun onListFiles(files: List<String>) {
+                      System.out.println("\n✅ list complete: $files")
+                      result.success(files)
+                  }
+
+              })
+          } catch (e: UnsupportedEncodingException) {
+              e.printStackTrace()
+          }
       } else {
           result.notImplemented()
       }

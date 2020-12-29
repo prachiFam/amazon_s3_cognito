@@ -94,6 +94,8 @@ public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
               uploadImageForRegion(call,result: result)
           }else if(call.method.elementsEqual("deleteImage")){
               deleteImage(call,result: result)
+          }else if(call.method.elementsEqual("listFiles")){
+              listFiles(call,result: result)
           }
       }
 
@@ -178,10 +180,10 @@ public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
 
 
           let credentialsProvider = AWSCognitoCredentialsProvider(
-              regionType: region1,
+              regionType: AWSRegionType.regionTypeForString(regionString: region!),
               identityPoolId: identity!)
           let configuration = AWSServiceConfiguration(
-              region: subRegion1,
+              region: AWSRegionType.regionTypeForString(regionString: subRegion!),
               credentialsProvider: credentialsProvider)
           AWSServiceManager.default().defaultServiceConfiguration = configuration
 
@@ -195,7 +197,7 @@ public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
               if task.result != nil {
 
 
-                  imageAmazonUrl = "https://s3-" + self.subRegion1.stringValue +  ".amazonaws.com/\(bucket!)/\(uploadRequest!.key!)"
+                  imageAmazonUrl = "https://s3-" + subRegion! +  ".amazonaws.com/\(bucket!)/\(uploadRequest!.key!)"
                   print("✅ Upload successed (\(imageAmazonUrl))")
               } else {
                   print("❌ Unexpected empty result.")
@@ -242,6 +244,48 @@ public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
               return nil
           }
 
+
+      }
+
+      func listFiles(_ call: FlutterMethodCall, result: @escaping FlutterResult){
+          let arguments = call.arguments as? NSDictionary
+          let bucket = arguments!["bucket"] as? String
+          let identity = arguments!["identity"] as? String
+          let filePrefix = arguments!["prefix"] as? String
+          let region = arguments!["region"] as? String
+          let subRegion = arguments!["subRegion"] as? String
+
+
+          if(region != nil && subRegion != nil){
+              initRegions(region: region!, subRegion: subRegion!)
+          }
+
+          let credentialsProvider = AWSCognitoCredentialsProvider(
+              regionType: AWSRegionType.regionTypeForString(regionString: region!),
+              identityPoolId: identity!)
+          let configuration = AWSServiceConfiguration(
+              region: AWSRegionType.regionTypeForString(regionString: subRegion!),
+              credentialsProvider: credentialsProvider)
+          AWSServiceManager.default().defaultServiceConfiguration = configuration
+
+          AWSS3.register(with: configuration!, forKey: "defaultKey")
+
+          let s3 = AWSS3.s3(forKey: "defaultKey")
+          let listRequest = AWSS3ListObjectsRequest()
+          listRequest?.bucket = bucket // bucket name
+          listRequest?.prefix = filePrefix // File prefix
+
+          s3.listObjects(listRequest!).continueWith { (task:AWSTask) -> AnyObject? in
+              if let error = task.error {
+                  print("Error occurred: \(error)")
+                  result("Error occurred: \(error)")
+                  return nil
+              }
+
+              let keys = task.result?.contents!.map({ $0.key })
+              result(keys)
+              return nil
+          }
 
       }
 
