@@ -18,6 +18,6 @@ This plugin allows users to list, upload and delete image for amazon s3 cognito
   s.dependency 'AWSS3', '< 2.20'
   s.dependency 'AWSCore', '< 2.20'
 
-  s.ios.deployment_target = '8.0'
+  s.ios.deployment_target = '12.0'
 end
 

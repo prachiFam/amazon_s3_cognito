@@ -19,4 +19,7 @@ plugin now supports pdf and other file type uploads.
 Other file uploads were working properly on Android before, but they were broken for IOS, so we have fixed those now too.
 NOTE **** Use upload method in order to upload files other than images.
 
+## 0.4.0
+plugin is not fixed for xcode version 12
+
 
