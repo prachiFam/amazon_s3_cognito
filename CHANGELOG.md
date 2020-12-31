@@ -28,7 +28,7 @@ Buggy -> do not use
 plugin is not fixed for xcode version 12
 
 
-## 0.4.5
+## 0.5.0
 plugin is now working for ios upload also. However plugin is still not
 using TransferUtiltiy classes as thosee are giving issues on image uploads.
 
