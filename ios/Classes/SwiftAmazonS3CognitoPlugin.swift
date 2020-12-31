@@ -19,72 +19,7 @@ public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-          if(call.method.elementsEqual("uploadImageToAmazon")){
-              let arguments = call.arguments as? NSDictionary
-              let imagePath = arguments!["filePath"] as? String
-              let bucket = arguments!["bucket"] as? String
-              let identity = arguments!["identity"] as? String
-
-              var imageAmazonUrl = ""
-              let fileUrl = NSURL(fileURLWithPath: imagePath!)
-
-
-              let credentialsProvider = AWSCognitoCredentialsProvider(
-                  regionType: AWSRegionType.USEast1,
-                  identityPoolId: identity!)
-              let configuration = AWSServiceConfiguration(
-                  region: AWSRegionType.USEast1,
-                  credentialsProvider: credentialsProvider)
-              AWSServiceManager.default().defaultServiceConfiguration = configuration
-
-
-              let uploadRequest = AWSS3TransferManagerUploadRequest()
-              uploadRequest?.bucket = bucket
-              uploadRequest?.key = nameGenerator()
-
-            var contentType = "image/jpeg"
-            if(imagePath!.contains(".")){
-                var index = imagePath!.lastIndex(of: ".")
-                index = imagePath!.index(index!, offsetBy: 1)
-                if(index != nil){
-                    let extention = String(imagePath![index!...])
-                    print("extension"+extention);
-                    if(extention.lowercased().contains("png") ||
-                    extention.lowercased().contains("jpg") ||
-                        extention.lowercased().contains("jpeg") ){
-                        contentType = "image/"+extention
-                    }else{
-                        if(contentType.contains("pdf")){
-                             contentType = "application/pdf";
-                        }else{
-                             contentType = "application/*";
-                        }
-
-                    }
-
-                }
-            }
-
-            uploadRequest?.contentType = contentType
-
-              uploadRequest?.body = fileUrl as URL
-              uploadRequest?.acl = .publicReadWrite
-
-
-              AWSS3TransferManager.default().upload(uploadRequest!).continueWith { (task) -> AnyObject? in
-                  if let error = task.error {
-                      print("❌ Upload failed (\(error))")
-                  }
-                  if task.result != nil {
-                      imageAmazonUrl = "https://s3.amazonaws.com/\(bucket!)/\(uploadRequest!.key!)"
-                      print("✅ Upload successed (\(imageAmazonUrl))")
-                  } else {
-                      print("❌ Unexpected empty result.")
-                  }
-                  result(imageAmazonUrl)
-                  return nil
-              }
-          }else if(call.method.elementsEqual("uploadImage")){
+         if(call.method.elementsEqual("uploadImage")){
               uploadImageForRegion(call,result: result)
           }else if(call.method.elementsEqual("deleteImage")){
               deleteImage(call,result: result)
@@ -184,8 +119,10 @@ public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
 
                     if task.result != nil {
 
+//                        imageAmazonUrl = "https://s3-" + self.subRegion1.stringValue +  ".amazonaws.com/\(bucket!)/\(uploadRequest!.key!)"
+//
+                        imageAmazonUrl = AWSS3.default().configuration.endpoint.url.description + "/\(bucket!)/\(uploadRequest!.key!)"
 
-                        imageAmazonUrl = "https://s3-" + subRegion! +  ".amazonaws.com/\(bucket!)/\(uploadRequest!.key!)"
                         print("✅ Upload successed (\(imageAmazonUrl))")
                     } else {
                         print("❌ Unexpected empty result.")
