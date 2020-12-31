@@ -109,103 +109,97 @@ public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
 
 
       func uploadImageForRegion(_ call: FlutterMethodCall, result: @escaping FlutterResult){
-          let arguments = call.arguments as? NSDictionary
-          let imagePath = arguments!["filePath"] as? String
-          let bucket = arguments!["bucket"] as? String
-          let identity = arguments!["identity"] as? String
-          let fileName = arguments!["imageName"] as? String
-          let region = arguments!["region"] as? String
-          let subRegion = arguments!["subRegion"] as? String
+                let arguments = call.arguments as? NSDictionary
+                let imagePath = arguments!["filePath"] as? String
+                let bucket = arguments!["bucket"] as? String
+                let identity = arguments!["identity"] as? String
+                let fileName = arguments!["imageName"] as? String
+                let region = arguments!["region"] as? String
+                let subRegion = arguments!["subRegion"] as? String
 
-        let contentTypeParam = arguments!["contentType"] as? String
-
-
-          print("region" + region!)
-
-          print("subregion " + subRegion!)
-          if(region != nil && subRegion != nil){
-              initRegions(region: region!, subRegion: subRegion!)
-          }
+              let contentTypeParam = arguments!["contentType"] as? String
 
 
-          var imageAmazonUrl = ""
-          let fileUrl = NSURL(fileURLWithPath: imagePath!)
+                print("region" + region!)
 
-          let uploadRequest = AWSS3TransferManagerUploadRequest()
-          uploadRequest?.bucket = bucket
-          uploadRequest?.key = fileName
+                print("subregion " + subRegion!)
+                if(region != nil && subRegion != nil){
+                    initRegions(region: region!, subRegion: subRegion!)
+                }
 
-
-        var contentType = "image/jpeg"
-        if(contentTypeParam != nil &&
-            contentTypeParam!.count > 0){
-            contentType = contentTypeParam!
-        }
-
-        if(contentTypeParam == nil || contentTypeParam!.count == 0 &&  fileName!.contains(".")){
-                       var index = fileName!.lastIndex(of: ".")
-                       index = fileName!.index(index!, offsetBy: 1)
-                       if(index != nil){
-                           let extention = String(fileName![index!...])
-                           print("extension"+extention);
-                           if(extention.lowercased().contains("png") ||
-                           extention.lowercased().contains("jpg") ||
-                               extention.lowercased().contains("jpeg") ){
-                               contentType = "image/"+extention
-                           }else{
-
-                            if(extention.lowercased().contains("pdf")){
-                                contentType = "application/pdf"
-                                }else{
-                                contentType = "application/*"
-                                }
-
-                           }
-
-                       }
-                   }
-
-        uploadRequest?.contentType = contentType
-//        if(fileName!.lowercased().contains("jpeg") ||
-//            fileName!.lowercased().contains("png")){
-//            uploadRequest?.contentType = "image/jpeg"
-//
-//        }else if(fileName!.lowercased().contains("pdf")){
-//             uploadRequest?.contentType = "application/pdf"
-//        }
-
-          uploadRequest?.body = fileUrl as URL
-
-          uploadRequest?.acl = .publicReadWrite
+              let credentialsProvider = AWSCognitoCredentialsProvider(
+                  regionType: region1,
+                  identityPoolId: identity!)
+              let configuration = AWSServiceConfiguration(
+                  region: subRegion1,
+                  credentialsProvider: credentialsProvider)
+              AWSServiceManager.default().defaultServiceConfiguration = configuration
 
 
-          let credentialsProvider = AWSCognitoCredentialsProvider(
-              regionType: AWSRegionType.regionTypeForString(regionString: region!),
-              identityPoolId: identity!)
-          let configuration = AWSServiceConfiguration(
-              region: AWSRegionType.regionTypeForString(regionString: subRegion!),
-              credentialsProvider: credentialsProvider)
-          AWSServiceManager.default().defaultServiceConfiguration = configuration
+                var imageAmazonUrl = ""
+                let fileUrl = NSURL(fileURLWithPath: imagePath!)
+
+                let uploadRequest = AWSS3TransferManagerUploadRequest()
+                uploadRequest?.bucket = bucket
+                uploadRequest?.key = fileName
 
 
-          AWSS3TransferManager.default().upload(uploadRequest!).continueWith { (task) -> AnyObject? in
-              if let error = task.error {
-                  print("❌ Upload failed (\(error))")
+              var contentType = "image/jpeg"
+              if(contentTypeParam != nil &&
+                  contentTypeParam!.count > 0){
+                  contentType = contentTypeParam!
               }
 
+              if(contentTypeParam == nil || contentTypeParam!.count == 0 &&  fileName!.contains(".")){
+                             var index = fileName!.lastIndex(of: ".")
+                             index = fileName!.index(index!, offsetBy: 1)
+                             if(index != nil){
+                                 let extention = String(fileName![index!...])
+                                 print("extension"+extention);
+                                 if(extention.lowercased().contains("png") ||
+                                 extention.lowercased().contains("jpg") ||
+                                     extention.lowercased().contains("jpeg") ){
+                                     contentType = "image/"+extention
+                                 }else{
 
-              if task.result != nil {
+                                  if(extention.lowercased().contains("pdf")){
+                                      contentType = "application/pdf"
+                                      }else{
+                                      contentType = "application/*"
+                                      }
+
+                                 }
+
+                             }
+                         }
+
+              uploadRequest?.contentType = contentType
+
+                uploadRequest?.body = fileUrl as URL
+
+                uploadRequest?.acl = .publicReadWrite
 
 
-                  imageAmazonUrl = "https://s3-" + subRegion! +  ".amazonaws.com/\(bucket!)/\(uploadRequest!.key!)"
-                  print("✅ Upload successed (\(imageAmazonUrl))")
-              } else {
-                  print("❌ Unexpected empty result.")
-              }
-              result(imageAmazonUrl)
-              return nil
-          }
-      }
+
+
+                AWSS3TransferManager.default().upload(uploadRequest!).continueWith { (task) -> AnyObject? in
+                    if let error = task.error {
+                        print("❌ Upload failed (\(error))")
+                    }
+
+
+                    if task.result != nil {
+
+
+                        imageAmazonUrl = "https://s3-" + subRegion! +  ".amazonaws.com/\(bucket!)/\(uploadRequest!.key!)"
+                        print("✅ Upload successed (\(imageAmazonUrl))")
+                    } else {
+                        print("❌ Unexpected empty result.")
+                    }
+                    result(imageAmazonUrl)
+                    return nil
+                }
+            }
 
       func deleteImage(_ call: FlutterMethodCall, result: @escaping FlutterResult){
           let arguments = call.arguments as? NSDictionary
