@@ -28,6 +28,16 @@ public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
               var imageAmazonUrl = ""
               let fileUrl = NSURL(fileURLWithPath: imagePath!)
 
+
+              let credentialsProvider = AWSCognitoCredentialsProvider(
+                  regionType: AWSRegionType.USEast1,
+                  identityPoolId: identity!)
+              let configuration = AWSServiceConfiguration(
+                  region: AWSRegionType.USEast1,
+                  credentialsProvider: credentialsProvider)
+              AWSServiceManager.default().defaultServiceConfiguration = configuration
+
+
               let uploadRequest = AWSS3TransferManagerUploadRequest()
               uploadRequest?.bucket = bucket
               uploadRequest?.key = nameGenerator()
@@ -57,25 +67,9 @@ public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
 
             uploadRequest?.contentType = contentType
 
-//            if(imagePath!.lowercased().contains("jpeg") ||
-//                imagePath!.lowercased().contains("png")){
-//                uploadRequest?.contentType = "image/jpeg"
-//
-//            }else if(imagePath!.lowercased().contains("pdf")){
-//                 uploadRequest?.contentType = "application/pdf"
-//            }
-
-              //uploadRequest?.contentType = "image/jpeg"
               uploadRequest?.body = fileUrl as URL
               uploadRequest?.acl = .publicReadWrite
 
-              let credentialsProvider = AWSCognitoCredentialsProvider(
-                  regionType: AWSRegionType.USEast1,
-                  identityPoolId: identity!)
-              let configuration = AWSServiceConfiguration(
-                  region: AWSRegionType.USEast1,
-                  credentialsProvider: credentialsProvider)
-              AWSServiceManager.default().defaultServiceConfiguration = configuration
 
               AWSS3TransferManager.default().upload(uploadRequest!).continueWith { (task) -> AnyObject? in
                   if let error = task.error {
