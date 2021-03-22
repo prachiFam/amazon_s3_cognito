@@ -35,3 +35,6 @@ using TransferUtiltiy classes as thosee are giving issues on image uploads.
 ## 0.5.2
 the documents and image urls path are now returned correctly.
 
+## 0.6.0
+prerelease -> this version includes null safety
+
