@@ -33,7 +33,7 @@ class AwsRegionHelper(private val context: Context,
     }
 
     private fun getTransferUtility():TransferUtility{
-        val awsConfiguration = AWSConfiguration(context)
+        //val awsConfiguration = AWSConfiguration(context)
         val amazonS3Client = getAmazonS3Client()
 
         TransferNetworkLossHandler.getInstance(context.applicationContext)
@@ -45,7 +45,6 @@ class AwsRegionHelper(private val context: Context,
                 transferUtilityOptions(transferOptions)
                 .defaultBucket(BUCKET_NAME)
                 .context(context)
-                .awsConfiguration(awsConfiguration)
                 .build()
     }
 
