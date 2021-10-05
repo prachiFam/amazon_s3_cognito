@@ -6,6 +6,7 @@ import android.util.Log
 
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider
+import com.amazonaws.mobile.config.AWSConfiguration
 import com.amazonaws.mobileconnectors.s3.transferutility.*
 import com.amazonaws.regions.Region
 import com.amazonaws.regions.Regions
@@ -26,13 +27,26 @@ class AwsRegionHelper(private val context: Context,
 
 
     init {
-
         initRegion()
-        val credentialsProvider = CognitoCachingCredentialsProvider(context, IDENTITY_POOL_ID, region1)
-        val amazonS3Client = AmazonS3Client(credentialsProvider)
-        amazonS3Client.setRegion(com.amazonaws.regions.Region.getRegion(subRegion1))
+        transferUtility =  getTransferUtility()
+
+    }
+
+    private fun getTransferUtility():TransferUtility{
+        val awsConfiguration = AWSConfiguration(context)
+        val amazonS3Client = getAmazonS3Client()
+
         TransferNetworkLossHandler.getInstance(context.applicationContext)
-        transferUtility = TransferUtility(amazonS3Client, context)
+        val transferOptions = TransferUtilityOptions()
+        transferOptions.transferThreadPoolSize = 10
+
+        return  TransferUtility.builder()
+                .s3Client(amazonS3Client).
+                transferUtilityOptions(transferOptions)
+                .defaultBucket(BUCKET_NAME)
+                .context(context)
+                .awsConfiguration(awsConfiguration)
+                .build()
     }
 
     private val uploadedUrl: String
@@ -41,6 +55,12 @@ class AwsRegionHelper(private val context: Context,
     private fun getUploadedUrl(key: String?): String {
         return "https://s3-"+subRegion1.getName()+".amazonaws.com/"+BUCKET_NAME+"/"+key
         //return  ""+key
+    }
+
+    private fun getAmazonS3Client():AmazonS3Client{
+        val credentialsProvider = CognitoCachingCredentialsProvider(context, IDENTITY_POOL_ID, region1)
+        return AmazonS3Client(credentialsProvider, Region.getRegion(subRegion1))
+
     }
 
     private fun initRegion(){
@@ -55,11 +75,9 @@ class AwsRegionHelper(private val context: Context,
 
         initRegion()
 
-        val credentialsProvider = CognitoCachingCredentialsProvider(context, IDENTITY_POOL_ID, region1)
         TransferNetworkLossHandler.getInstance(context.applicationContext)
 
-        val amazonS3Client = AmazonS3Client(credentialsProvider)
-        amazonS3Client.setRegion(com.amazonaws.regions.Region.getRegion(subRegion1))
+        val amazonS3Client =  getAmazonS3Client()
         Thread(Runnable{
             amazonS3Client.deleteObject(BUCKET_NAME, imageName)
         }).start()
@@ -73,12 +91,8 @@ class AwsRegionHelper(private val context: Context,
 
         initRegion()
 
-        val credentialsProvider = CognitoCachingCredentialsProvider(context, IDENTITY_POOL_ID, region1)
         TransferNetworkLossHandler.getInstance(context.applicationContext)
 
-        val amazonS3Client = AmazonS3Client(credentialsProvider)
-        amazonS3Client.setRegion(com.amazonaws.regions.Region.getRegion(subRegion1))
-        transferUtility = TransferUtility(amazonS3Client, context)
 
         nameOfUploadedFile = imageName;
 
@@ -187,34 +201,26 @@ class AwsRegionHelper(private val context: Context,
 
     }
 
-    private inner class ListFilesTask : AsyncTask<Void, Void, List<S3ObjectSummary>> {
-        private val s3: AmazonS3Client
-        private val bucket: String
-        private val prefix: String?
-        private val onListFilesCompleteListener: OnListFilesCompleteListener
 
-        private var s3ObjList: List<S3ObjectSummary>? = null
 
-        constructor(s3: AmazonS3Client, bucket: String, prefix: String?, onListFilesCompleteListener: OnListFilesCompleteListener) : super () {
-            this.s3 = s3
-            this.bucket = bucket
-            this.prefix = prefix
-            this.onListFilesCompleteListener = onListFilesCompleteListener
+}
+
+private class ListFilesTask(private val s3: AmazonS3Client, private val bucket: String, private val prefix: String?, private val onListFilesCompleteListener: AwsRegionHelper.OnListFilesCompleteListener) : AsyncTask<Void, Void, List<S3ObjectSummary>>() {
+
+    private var s3ObjList: List<S3ObjectSummary>? = null
+
+    override fun doInBackground(vararg inputs: Void): List<S3ObjectSummary>? {
+        // Queries files in the bucket from S3.
+        if (prefix.isNullOrBlank()) {
+            s3ObjList = s3.listObjects(bucket)?.getObjectSummaries()
+        } else {
+            s3ObjList = s3.listObjects(bucket, prefix)?.getObjectSummaries()
         }
-
-        override fun doInBackground(vararg inputs: Void): List<S3ObjectSummary>? {
-            // Queries files in the bucket from S3.
-            if (prefix.isNullOrBlank()) {
-                s3ObjList = s3?.listObjects(bucket)?.getObjectSummaries()
-            } else {
-                s3ObjList = s3?.listObjects(bucket, prefix)?.getObjectSummaries()
-            }
-            return s3ObjList
-        }
-
-        override fun onPostExecute(result: List<S3ObjectSummary>?) {
-            result?.map { it.key }?.let { onListFilesCompleteListener.onListFiles(it) }
-        }
-
+        return s3ObjList
     }
+
+    override fun onPostExecute(result: List<S3ObjectSummary>?) {
+        result?.map { it.key }?.let { onListFilesCompleteListener.onListFiles(it) }
+    }
+
 }

@@ -41,6 +41,8 @@ android {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'com.amazonaws:aws-android-sdk-core:2.19.1'
-    implementation 'com.amazonaws:aws-android-sdk-s3:2.19.1'
+    implementation 'com.amazonaws:aws-android-sdk-core:2.32.0'
+    implementation 'com.amazonaws:aws-android-sdk-s3:2.32.0'
+//    implementation 'com.amplifyframework:aws-storage-s3:1.28.0'
+//    implementation 'com.amplifyframework:aws-auth-cognito:1.28.0'
 }
