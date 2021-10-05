@@ -3,10 +3,7 @@ package com.famproperties.amazon_s3_cognito
 import android.content.Context
 import android.os.AsyncTask
 import android.util.Log
-
-
 import com.amazonaws.auth.CognitoCachingCredentialsProvider
-import com.amazonaws.mobile.config.AWSConfiguration
 import com.amazonaws.mobileconnectors.s3.transferutility.*
 import com.amazonaws.regions.Region
 import com.amazonaws.regions.Regions
@@ -200,7 +197,25 @@ class AwsRegionHelper(private val context: Context,
 
     }
 
+    private inner class ListFilesTask(private val s3: AmazonS3Client, private val bucket: String, private val prefix: String?, private val onListFilesCompleteListener: OnListFilesCompleteListener) : AsyncTask<Void, Void, List<S3ObjectSummary>>() {
 
+        private var s3ObjList: List<S3ObjectSummary>? = null
+
+        override fun doInBackground(vararg inputs: Void): List<S3ObjectSummary>? {
+            // Queries files in the bucket from S3.
+            if (prefix.isNullOrBlank()) {
+                s3ObjList = s3?.listObjects(bucket)?.getObjectSummaries()
+            } else {
+                s3ObjList = s3?.listObjects(bucket, prefix)?.getObjectSummaries()
+            }
+            return s3ObjList
+        }
+
+        override fun onPostExecute(result: List<S3ObjectSummary>?) {
+            result?.map { it.key }?.let { onListFilesCompleteListener.onListFiles(it) }
+        }
+
+    }
 
 }
 
