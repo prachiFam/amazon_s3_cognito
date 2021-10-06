@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.AsyncTask
 import android.util.Log
 import com.amazonaws.auth.CognitoCachingCredentialsProvider
+import com.amazonaws.mobile.config.AWSConfiguration
 import com.amazonaws.mobileconnectors.s3.transferutility.*
 import com.amazonaws.regions.Region
 import com.amazonaws.regions.Regions
@@ -31,11 +32,12 @@ class AwsRegionHelper(private val context: Context,
 
     private fun getTransferUtility():TransferUtility{
         //val awsConfiguration = AWSConfiguration(context)
+        //awsConfiguration.
         val amazonS3Client = getAmazonS3Client()
 
         TransferNetworkLossHandler.getInstance(context.applicationContext)
         val transferOptions = TransferUtilityOptions()
-        transferOptions.transferThreadPoolSize = 10
+        transferOptions.transferThreadPoolSize = 18
 
         return  TransferUtility.builder()
                 .s3Client(amazonS3Client).
@@ -74,7 +76,7 @@ class AwsRegionHelper(private val context: Context,
         TransferNetworkLossHandler.getInstance(context.applicationContext)
 
         val amazonS3Client =  getAmazonS3Client()
-        Thread(Runnable{
+        Thread( Runnable{
             amazonS3Client.deleteObject(BUCKET_NAME, imageName)
         }).start()
         onUploadCompleteListener.onUploadComplete("Success")
@@ -203,10 +205,10 @@ class AwsRegionHelper(private val context: Context,
 
         override fun doInBackground(vararg inputs: Void): List<S3ObjectSummary>? {
             // Queries files in the bucket from S3.
-            if (prefix.isNullOrBlank()) {
-                s3ObjList = s3?.listObjects(bucket)?.getObjectSummaries()
+            if(prefix.isNullOrBlank()) {
+                s3ObjList = s3.listObjects(bucket)?.getObjectSummaries()
             } else {
-                s3ObjList = s3?.listObjects(bucket, prefix)?.getObjectSummaries()
+                s3ObjList = s3.listObjects(bucket, prefix)?.getObjectSummaries()
             }
             return s3ObjList
         }

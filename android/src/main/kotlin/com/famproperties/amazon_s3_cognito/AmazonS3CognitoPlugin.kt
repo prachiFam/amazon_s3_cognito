@@ -11,9 +11,6 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-
-
-
 import io.flutter.plugin.common.PluginRegistry.Registrar
 
 import org.jetbrains.annotations.NotNull
@@ -23,7 +20,7 @@ import java.io.UnsupportedEncodingException
 class AmazonS3CognitoPlugin :FlutterPlugin,MethodCallHandler, ActivityAware , ServiceAware {
 
     private lateinit var channel : MethodChannel
-    private var awsHelper: AwsHelper? = null
+
     private var awsRegionHelper: AwsRegionHelper? = null
     private lateinit var context: Context
     private lateinit var activity: Activity
@@ -50,31 +47,7 @@ class AmazonS3CognitoPlugin :FlutterPlugin,MethodCallHandler, ActivityAware , Se
         val prefix = call.argument<String>("prefix")
 
 
-        if (call.method.equals("uploadImageToAmazon")) {
-            val file = File(filePath)
-            try {
-                awsHelper = AwsHelper(context, object : AwsHelper.OnUploadCompleteListener{
-                    override fun onFailed() {
-
-                        System.out.println("\n❌ upload failed")
-                        try{
-                            result.success("Failed")
-                        }catch (e:Exception){
-
-                        }
-                    }
-
-                    override fun onUploadComplete(@NotNull imageUrl: String) {
-                        System.out.println("\n✅ upload complete: $imageUrl")
-                        result.success(imageUrl)
-                    }
-                },  bucket!!, identity!!)
-                awsHelper!!.uploadImage(file)
-            } catch (e: UnsupportedEncodingException) {
-                e.printStackTrace()
-            }
-
-        } else if (call.method.equals("uploadImage")) {
+        if (call.method.equals("uploadImage")) {
             val file = File(filePath)
             try {
                 awsRegionHelper = AwsRegionHelper(context, bucket!!, identity!!, region!!, subRegion!!)
