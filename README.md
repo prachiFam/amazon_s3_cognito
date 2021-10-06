@@ -30,14 +30,13 @@ The package is android-x compatible
 
 
 
+
 ``` dart
 import 'package:amazon_s3_cognito/amazon_s3_cognito.dart';
 import 'package:amazon_s3_cognito/aws_region.dart';
 
-//this method only supports image upload. 
-String uploadedImageUrl = await AmazonS3Cognito.uploadImage(
-          _image.path, BUCKET_NAME, IDENTITY_POOL_ID);
-          
+
+
 
 //Use the below code to specify the region and sub region for image upload
 //Also this method allows to upload all file type including images and pdf etc.
@@ -74,8 +73,14 @@ String uploadedImageUrl = await AmazonS3Cognito.upload(
 
 ### Android
 
-No configuration required - the plugin should work out of the box.          
+Inside AndroidManifest.xml register TransferService like below
 
+ <application
+ .....
+
+ <service android:name= "com.amazonaws.mobileconnectors.s3.transferutility.TransferService" android:enabled="true" />
+
+</application>
 
 ### iOS
 
