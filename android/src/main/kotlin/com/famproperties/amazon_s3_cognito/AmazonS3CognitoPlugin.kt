@@ -2,11 +2,13 @@ package com.famproperties.amazon_s3_cognito
 
 import android.app.Activity
 import android.content.Context
+import com.google.gson.JsonObject
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.embedding.engine.plugins.service.ServiceAware
 import io.flutter.embedding.engine.plugins.service.ServicePluginBinding
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -14,16 +16,23 @@ import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
 
 import org.jetbrains.annotations.NotNull
+import org.json.JSONArray
+import org.json.JSONObject
 import java.io.File
 import java.io.UnsupportedEncodingException
 
 class AmazonS3CognitoPlugin :FlutterPlugin,MethodCallHandler, ActivityAware , ServiceAware {
 
     private lateinit var channel : MethodChannel
+    private lateinit var eventChannel : EventChannel
 
     private var awsRegionHelper: AwsRegionHelper? = null
+    private var  awsMultiImageRegionHelper:AwsMultipleFileUploadHelper? = null
+
     private lateinit var context: Context
     private lateinit var activity: Activity
+
+    private  lateinit var imageUploadListener:ImageUploadListener
 
 
     companion object {
@@ -33,6 +42,11 @@ class AmazonS3CognitoPlugin :FlutterPlugin,MethodCallHandler, ActivityAware , Se
             val instance = AmazonS3CognitoPlugin()
             instance.activity = registrar.activity()
             channel.setMethodCallHandler(instance)
+
+
+            val eventChannel = EventChannel(registrar.messenger(), "amazon_s3_cognito_images_upload_steam")
+
+
         }
     }
 
@@ -45,30 +59,36 @@ class AmazonS3CognitoPlugin :FlutterPlugin,MethodCallHandler, ActivityAware , Se
         val region = call.argument<String>("region")
         val subRegion = call.argument<String>("subRegion")
         val prefix = call.argument<String>("prefix")
+        val imageDataListJson = call.argument<String>("imageDataList")
 
 
-        if (call.method.equals("uploadImage")) {
-            val file = File(filePath)
-            try {
-                awsRegionHelper = AwsRegionHelper(context, bucket!!, identity!!, region!!, subRegion!!)
-                awsRegionHelper!!.uploadImage(file, fileName!!, object : AwsRegionHelper.OnUploadCompleteListener {
-                    override fun onFailed() {
-                        System.out.println("\n❌ upload failed")
-                        try{
-                            result.success("Failed")
-                        }catch (e:Exception){
+
+        if (call.method.equals("uploadImage") ) {
+            if(filePath == null){
+                return  result.error("file path cannot be empty","error",1)
+            }else{
+                val file = File(filePath)
+                try {
+                    awsRegionHelper = AwsRegionHelper(context, bucket!!, identity!!, region!!, subRegion!!)
+                    awsRegionHelper!!.uploadImage(file, fileName!!, object : AwsRegionHelper.OnUploadCompleteListener {
+                        override fun onFailed() {
+                            System.out.println("\n❌ upload failed")
+                            try{
+                                result.success("Failed")
+                            }catch (e:Exception){
+
+                            }
 
                         }
 
-                    }
-
-                    override fun onUploadComplete(@NotNull imageUrl: String) {
-                        System.out.println("\n✅ upload complete: $imageUrl")
-                        result.success(imageUrl)
-                    }
-                })
-            } catch (e: UnsupportedEncodingException) {
-                e.printStackTrace()
+                        override fun onUploadComplete(@NotNull imageUrl: String) {
+                            System.out.println("\n✅ upload complete: $imageUrl")
+                            result.success(imageUrl)
+                        }
+                    })
+                } catch (e: UnsupportedEncodingException) {
+                    e.printStackTrace()
+                }
             }
 
         } else if (call.method.equals("deleteImage")) {
@@ -100,16 +120,27 @@ class AmazonS3CognitoPlugin :FlutterPlugin,MethodCallHandler, ActivityAware , Se
                 e.printStackTrace()
             }
 
-        } else if (call.method.equals("listFiles")) {
+        } else if (call.method.equals("uploadImages")) {
             try {
-                awsRegionHelper = AwsRegionHelper(context, bucket!!, identity!!, region!!, subRegion!!)
-                val files = awsRegionHelper!!.listFiles(prefix, object : AwsRegionHelper.OnListFilesCompleteListener {
-                    override fun onListFiles(files: List<String>) {
-                        System.out.println("\n✅ list complete: $files")
-                        result.success(files)
+                val list:ArrayList<ImageData> = ArrayList()
+                if(imageDataListJson != null){
+                    val jsonArray = JSONArray(imageDataListJson)
+                    for (jsonIndex in 0 until jsonArray.length()) {
+                        val jsonObject: JSONObject = jsonArray.getJSONObject(jsonIndex)
+                        val path:String = jsonObject.getString("filePath")
+                        val nameOfFile:String = jsonObject.getString("fileName")
+                        val uniqueKey:String =  jsonObject.getString("uniqueId")
+                        val imageData = ImageData(path,nameOfFile,uniqueKey)
+                        list.add(imageData)
                     }
+                }
+                awsMultiImageRegionHelper = AwsMultipleFileUploadHelper(
+                        context,
+                        bucket!!,identity!!, region!!, subRegion!!,list,imageUploadListener)
 
-                })
+                awsMultiImageRegionHelper?.uploadImages()
+                result.success("Uploaded started successfully")
+
             } catch (e: UnsupportedEncodingException) {
                 e.printStackTrace()
             }
@@ -121,6 +152,11 @@ class AmazonS3CognitoPlugin :FlutterPlugin,MethodCallHandler, ActivityAware , Se
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "amazon_s3_cognito")
         channel.setMethodCallHandler(this)
+
+        eventChannel = EventChannel(flutterPluginBinding.binaryMessenger, "amazon_s3_cognito_images_upload_steam")
+        imageUploadListener = ImageUploadListener()
+        eventChannel.setStreamHandler(imageUploadListener)
+
         //Factory.setup(this, flutterPluginBinding.binaryMessenger)
         context = flutterPluginBinding.applicationContext
 
@@ -128,6 +164,10 @@ class AmazonS3CognitoPlugin :FlutterPlugin,MethodCallHandler, ActivityAware , Se
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
+        imageUploadListener.onCancel(1)
+        eventChannel.setStreamHandler(null)
+
+
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {

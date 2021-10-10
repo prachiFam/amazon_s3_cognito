@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/services.dart';
+
+import 'image_data.dart';
 
 class AmazonS3Cognito {
   static const MethodChannel _channel =
@@ -9,18 +12,6 @@ class AmazonS3Cognito {
   static Future<String?> get platformVersion async {
     final String? version = await _channel.invokeMethod('getPlatformVersion');
     return version;
-  }
-
-  static Future<String?> uploadImage(
-      String filepath, String bucket, String identity) async {
-    final Map<String, dynamic> params = <String, dynamic>{
-      'filePath': filepath,
-      'bucket': bucket,
-      'identity': identity,
-    };
-    final String? imagePath =
-        await _channel.invokeMethod('uploadImageToAmazon', params);
-    return imagePath;
   }
 
   static Future<String?> upload(String filepath, String bucket, String identity,
@@ -52,26 +43,27 @@ class AmazonS3Cognito {
     return imagePath;
   }
 
-  static Future<List<String>> listFiles(String bucket, String identity,
-      String prefix, String region, String subRegion) async {
+  static Future<String?> uploadImages(
+      String filepath,
+      String bucket,
+      String identity,
+      String imageName,
+      String region,
+      String subRegion,
+      List<ImageData> imageData) async {
+    String imageDataList = json.encode(imageData);
+
     final Map<String, dynamic> params = <String, dynamic>{
+      'filePath': filepath,
       'bucket': bucket,
       'identity': identity,
-      'prefix': prefix,
+      'imageName': imageName,
       'region': region,
-      'subRegion': subRegion
+      'subRegion': subRegion,
+      'imageDataList': imageDataList
     };
-    List<String> files = new List.empty(growable: true);
-    try {
-      List<dynamic> keys = await (_channel.invokeMethod('listFiles', params)
-          as FutureOr<List<dynamic>>);
-      for (String key in keys as Iterable<String>) {
-        files.add("https://s3-$region.amazonaws.com/$bucket/$key");
-      }
-    } on PlatformException catch (e) {
-      print(e.toString());
-    }
-
-    return files;
+    final String? imagePath =
+        await _channel.invokeMethod('uploadImage', params);
+    return imagePath;
   }
 }
