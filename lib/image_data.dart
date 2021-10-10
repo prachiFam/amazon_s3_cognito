@@ -24,4 +24,13 @@ class ImageData {
       'uniqueId': uniqueId,
     };
   }
+
+  void copy(ImageData another) {
+    fileName = another.fileName;
+    filePath = another.filePath;
+    amazonUrl = another.amazonUrl;
+    progress = another.progress;
+    state = another.state;
+    isUploadError = another.isUploadError;
+  }
 }
