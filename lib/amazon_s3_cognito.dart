@@ -43,27 +43,19 @@ class AmazonS3Cognito {
     return imagePath;
   }
 
-  static Future<String?> uploadImages(
-      String filepath,
-      String bucket,
-      String identity,
-      String imageName,
-      String region,
-      String subRegion,
-      List<ImageData> imageData) async {
+  static Future<String?> uploadImages(String bucket, String identity,
+      String region, String subRegion, List<ImageData> imageData) async {
     String imageDataList = json.encode(imageData);
 
     final Map<String, dynamic> params = <String, dynamic>{
-      'filePath': filepath,
       'bucket': bucket,
       'identity': identity,
-      'imageName': imageName,
       'region': region,
       'subRegion': subRegion,
       'imageDataList': imageDataList
     };
     final String? imagePath =
-        await _channel.invokeMethod('uploadImage', params);
+        await _channel.invokeMethod('uploadImages', params);
     return imagePath;
   }
 }
