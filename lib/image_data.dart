@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 class ImageData {
   String fileName;
   String filePath;
@@ -32,5 +34,14 @@ class ImageData {
     progress = another.progress;
     state = another.state;
     isUploadError = another.isUploadError;
+  }
+
+  void fromMap(HashMap map) {
+    fileName = map["fileName"];
+    filePath = map["filePath"];
+    amazonUrl = map["amazonImageUrl"];
+    progress = map["progress"];
+    state = map["state"];
+    isUploadError = map["isUploadError"];
   }
 }
