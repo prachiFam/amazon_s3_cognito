@@ -14,11 +14,12 @@ import java.io.File
 
 class AwsMultipleFileUploadHelper(private val context: Context,
                                   private val BUCKET_NAME: String, private val IDENTITY_POOL_ID: String,
-                                  private val REGION: String, private val SUB_REGION: String, private var imagesData: List<ImageData>, private val imageUploadListener: ImageUploadListener) {
+                                  private val REGION: String, private val SUB_REGION: String, private var imagesData: List<ImageData>, private val imageUploadListener: ImageUploadListener, private var needProgressUpdateAlso:Boolean) {
 
     private var transferUtility: TransferUtility
     private var region1: Regions = Regions.DEFAULT_REGION
     private var subRegion1: Regions = Regions.DEFAULT_REGION
+
 
 
     init {
@@ -86,11 +87,14 @@ class AwsMultipleFileUploadHelper(private val context: Context,
                 }
 
                 override fun onProgressChanged(id: Int, bytesCurrent: Long, bytesTotal: Long) {
-                    imageData.isUploadError = true
-                    imageData.state = "FILE PROGRESS"
-                    imageData.progress = (bytesCurrent * 100)/bytesTotal
 
-                    imageUploadListener.sendToStream(imageData)
+                    if(needProgressUpdateAlso){
+                        imageData.state = "FILE PROGRESS"
+                        imageData.progress = (bytesCurrent * 100)/bytesTotal
+
+                        imageUploadListener.sendToStream(imageData)
+                    }
+
                 }
                 override fun onError(id: Int, ex: Exception) {
                     imageData.isUploadError = true

@@ -60,6 +60,7 @@ class AmazonS3CognitoPlugin :FlutterPlugin,MethodCallHandler, ActivityAware , Se
         val subRegion = call.argument<String>("subRegion")
         val prefix = call.argument<String>("prefix")
         val imageDataListJson = call.argument<String>("imageDataList")
+        var needProgressUpdateAlso = call.argument<Boolean>("needProgressUpdateAlso")
 
 
 
@@ -134,9 +135,12 @@ class AmazonS3CognitoPlugin :FlutterPlugin,MethodCallHandler, ActivityAware , Se
                         list.add(imageData)
                     }
                 }
+                if(needProgressUpdateAlso == null){
+                    needProgressUpdateAlso = true;
+                }
                 awsMultiImageRegionHelper = AwsMultipleFileUploadHelper(
                         context,
-                        bucket!!,identity!!, region!!, subRegion!!,list,imageUploadListener)
+                        bucket!!,identity!!, region!!, subRegion!!,list,imageUploadListener,needProgressUpdateAlso )
 
                 awsMultiImageRegionHelper?.uploadImages()
                 result.success("Uploaded started successfully")
