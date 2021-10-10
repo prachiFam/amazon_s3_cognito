@@ -36,12 +36,26 @@ class ImageData {
     isUploadError = another.isUploadError;
   }
 
-  void fromMap(HashMap map) {
-    fileName = map["fileName"];
-    filePath = map["filePath"];
-    amazonUrl = map["amazonImageUrl"];
-    progress = map["progress"];
-    state = map["state"];
-    isUploadError = map["isUploadError"];
+  void fromMap(LinkedHashMap<Object?, Object?> map) {
+    if (map["fileName"] != null) {
+      fileName = map["fileName"].toString();
+    }
+
+    if (map["filePath"] != null) {
+      filePath = map["filePath"].toString();
+    }
+
+    if (map["amazonImageUrl"] != null) {
+      amazonUrl = map["amazonImageUrl"].toString();
+    }
+
+    if (map["progress"] != null) {
+      progress = double.parse(map["progress"].toString().trim());
+    }
+
+    state = map["state"]?.toString();
+    if (map["isUploadError"] != null) {
+      isUploadError = map["isUploadError"] as bool;
+    }
   }
 }
