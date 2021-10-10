@@ -15,7 +15,8 @@ class ImageUploadListener: EventChannel.StreamHandler {
     }
 
     fun sendToStream(imageData:ImageData){
-        val imageDataHashMap =  hashMapOf(
+        val imageDataHashMap: HashMap<String, Any?>
+            =  hashMapOf(
                 "filePath" to imageData.filePath,
                 "fileName" to imageData.fileName,
                 "uniqueId" to imageData.uniqueId,
