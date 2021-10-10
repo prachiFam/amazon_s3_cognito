@@ -3,6 +3,11 @@ class ImageData {
   String filePath;
   String? uniqueId;
 
+  String? amazonUrl;
+  double? progress;
+  String? state;
+  bool isUploadError = false;
+
   ImageData(this.fileName, this.filePath, {this.uniqueId});
 
   // named constructor
