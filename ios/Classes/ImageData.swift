@@ -1,0 +1,32 @@
+//
+//  ImageData.swift
+//  amazon_s3_cognito
+//
+//  Created by Paras mac on 11/10/21.
+//
+
+import Foundation
+
+class ImageData:Decodable{
+    
+    var filePath: String
+    var fileName: String
+    var uniqueId: String
+    var contentType: String?
+    
+    
+    init(filePath:String,fileName:String,uniqueId:String,contentType:String?) {
+        self.filePath = filePath
+        self.fileName = fileName
+        self.uniqueId = uniqueId
+        self.contentType = contentType
+    }
+    
+    
+    var isUploadInProgress: Bool = false
+    var isUploadError: Bool = false
+    var state : String = "INITIALIZED"
+    var amazonImageUrl: String? = nil
+    var progress: Double? = 0
+    var failureReason: String?
+}
