@@ -75,7 +75,7 @@ private static  var imageUploadStreamHandler = ImageUploadStreamHandler()
             
             let jsonData = imagesListString!.data(using: .utf8)!
             
-
+            var images:[ImageData] = []
             if let json = try! JSONSerialization.jsonObject(with: jsonData, options: .allowFragments) as? [Any] {
                 for item in json {
                     if let object = item as? [String: Any] {
@@ -87,7 +87,9 @@ private static  var imageUploadStreamHandler = ImageUploadStreamHandler()
                         let contentType = object["contentType"] as? String
                         
                         let imageDataInner:ImageData = ImageData(filePath: filePath, fileName: fileName, uniqueId: uniqueId, contentType: contentType)
-                        
+                         images.append(imageDataInner)
+
+
                        
                         
                     }
@@ -101,7 +103,7 @@ private static  var imageUploadStreamHandler = ImageUploadStreamHandler()
             }else{
                 let multiAwsUploadHelper:AwsMultiImageUploadHelper = AwsMultiImageUploadHelper.init(region: region!, subRegion: subRegion!, identity: identityPoolId!, bucketName: bucket!, needFileProgressUpdateAlso: needProgressUpdate)
                 
-                multiAwsUploadHelper.uploadMultipleImages(imagesData: [], imageUploadSreamHelper:SwiftAmazonS3CognitoPlugin.imageUploadStreamHandler)
+                multiAwsUploadHelper.uploadMultipleImages(imagesData:images, imageUploadSreamHelper:SwiftAmazonS3CognitoPlugin.imageUploadStreamHandler)
             }
         }else{
             result("image list is empty")
