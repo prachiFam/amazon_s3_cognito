@@ -6,7 +6,7 @@ import AWSCore
 
 public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
     
-private static let imageUploadEventChannel:String = "platform_channel_events/amazon_s3_cognito_images_upload_steam"
+private static let imageUploadEventChannel:String = "amazon_s3_cognito_images_upload_steam"
     
 private static  var imageUploadStreamHandler = ImageUploadStreamHandler()
 
