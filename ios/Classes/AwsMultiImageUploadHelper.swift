@@ -23,8 +23,8 @@ class AwsMultiImageUploadHelper{
          identity:String,bucketName:String,
          needFileProgressUpdateAlso:Bool?) {
 
-        region1 = RegionHelper.getRegion(name: region)
-        subRegion1 = RegionHelper.getRegion(name: subRegion)
+        let region1 = RegionHelper.getRegion(name: region)
+        let subRegion1 = RegionHelper.getRegion(name: subRegion)
         self.identityPoolId = identity
         self.bucketName = bucketName
 
@@ -62,7 +62,7 @@ class AwsMultiImageUploadHelper{
             }
 
 
-            uploadfile(filePath: imageDataObj.filePath, fileName: imageDataObj.fileName,folderToUploadTo: imageDataObj.imageFolderInBucket, contenType: contentType, progress: {[weak self] ( uploadProgress) in
+            uploadfile(filePath: imageDataObj.filePath, fileName: imageDataObj.fileName,folderToUploadTo: imageDataObj.imageUploadFolder, contenType: contentType, progress: {[weak self] ( uploadProgress) in
 
                 guard self != nil else { return }
 
@@ -139,6 +139,13 @@ class AwsMultiImageUploadHelper{
         // progress: file upload progress, value from 0 to 1, 1 for 100% complete
         // completion: completion block when uplaoding is finish, you will get S3 url of upload file here
     private func uploadfile(filePath: String, fileName: String, folderToUploadTo:String?, contenType: String, progress: progressBlock?, completion: completionBlock?) {
+
+        var key = fileName
+
+        if(folderToUploadTo != nil){
+            key = folderToUploadTo! + fileName
+        }
+
             // Upload progress block
             let expression = AWSS3TransferUtilityUploadExpression()
 
@@ -156,7 +163,7 @@ class AwsMultiImageUploadHelper{
             completionHandler = { (task, error) -> Void in
                 if error == nil {
                     let url = AWSS3.default().configuration.endpoint.url
-                    let publicURL = url?.appendingPathComponent(self.bucketName).appendingPathComponent(fileName)
+                    let publicURL = url?.appendingPathComponent(self.bucketName).appendingPathComponent(key)
                     print("Uploaded to:\(String(describing: publicURL))")
                     if let completionBlock = completion {
                         completionBlock(publicURL?.absoluteString, nil)
@@ -178,14 +185,17 @@ class AwsMultiImageUploadHelper{
 
                 print("image upload will start")
 
-                var key = fileName;
-                if(folderToUploadTo != nil){
-                    key = folderToUploadTo + key
-                }
+
 
                 awsTransferUtility.uploadData(data!, bucket: bucketName, key: key, contentType: contenType, expression: expression, completionHandler: completionHandler).continueWith { (task) -> Any? in
                     if let error = task.error {
-                        completionBlock(nil, error)
+
+                        if let completionBlock = completion {
+                            print("error is :\(String(describing: error.localizedDescription))")
+                            completionBlock(nil, error)
+                        }
+
+
                         print("error is: \(error.localizedDescription)")
                     }
                     if let _ = task.result {
