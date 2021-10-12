@@ -20,7 +20,8 @@ class ImageUploadStreamHandler:NSObject, FlutterStreamHandler{
             "state" : imageData.state,
             "amazonImageUrl" : imageData.amazonImageUrl ,
             "progress" : imageData.progress,
-            "failureReason":imageData.failureReason]
+            "failureReason":imageData.failureReason,
+            "imageUploadFolder":imageData.imageUploadFolder]
         
         if(self.eventSink != nil){
             self.eventSink!(data)

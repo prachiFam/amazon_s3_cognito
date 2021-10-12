@@ -1,32 +1,48 @@
 //
-//  ImageData.swift
+//  ImageUploadListener.swift
 //  amazon_s3_cognito
 //
 //  Created by Paras mac on 11/10/21.
 //
+import Flutter
 
-import Foundation
+class ImageUploadStreamHandler:NSObject, FlutterStreamHandler{
 
-class ImageData:Decodable{
-    
-    var filePath: String
-    var fileName: String
-    var uniqueId: String
-    var contentType: String?
-    
-    
-    init(filePath:String,fileName:String,uniqueId:String,contentType:String?) {
-        self.filePath = filePath
-        self.fileName = fileName
-        self.uniqueId = uniqueId
-        self.contentType = contentType
+    private var eventSink: FlutterEventSink?
+
+    func addImageUploadResult(imageData:ImageData) {
+
+        let data: [String: Any?] = [
+            "filePath" : imageData.filePath,
+            "fileName" : imageData.fileName,
+            "uniqueId" : imageData.uniqueId,
+            "isUploadError" : imageData.isUploadError,
+            "state" : imageData.state,
+            "amazonImageUrl" : imageData.amazonImageUrl ,
+            "progress" : imageData.progress,
+            "failureReason":imageData.failureReason,
+            "imageUploadFolder":imageData.imageUploadFolder]
+
+        if(self.eventSink != nil){
+            self.eventSink!(data)
+        }
+
     }
-    
-    
-    var isUploadInProgress: Bool = false
-    var isUploadError: Bool = false
-    var state : String = "INITIALIZED"
-    var amazonImageUrl: String? = nil
-    var progress: Double? = 0
-    var failureReason: String?
+
+    func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+
+        self.eventSink = events
+        return nil
+
+    }
+
+    func onCancel(withArguments arguments: Any?) -> FlutterError? {
+
+        eventSink = nil
+        return nil
+    }
+
+
+
 }
+

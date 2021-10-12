@@ -5,9 +5,9 @@ import AWSCore
 
 
 public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
-    
+
 private static let imageUploadEventChannel:String = "amazon_s3_cognito_images_upload_steam"
-    
+
 private static  var imageUploadStreamHandler = ImageUploadStreamHandler()
 
   public static func register(with registrar: FlutterPluginRegistrar) {
@@ -45,72 +45,74 @@ private static  var imageUploadStreamHandler = ImageUploadStreamHandler()
 
 
               print("region" + region!)
-        
+
         let awsHelper:AwsImageUploadHelper = AwsImageUploadHelper.init()
-        
+
         awsHelper.uploadImageForRegion(imagePath: imagePath, bucket: bucket, identity: identity, fileName: fileName, region: region, subRegion: subRegion, contentTypeParam: contentTypeParam) { (awsUploadReult) in
             result(awsUploadReult)}
-        
+
     }
-    
+
     func uploadMultipleImages(_ call: FlutterMethodCall, result: @escaping FlutterResult)  {
-        
+
         let arguments = call.arguments as? NSDictionary
-        
+
         let bucket = arguments!["bucket"] as? String
         let identityPoolId = arguments!["identity"] as? String
         let region = arguments!["region"] as? String
         let subRegion = arguments!["subRegion"] as? String
-        
+
         let needFileProgressUpdateAlso = arguments!["needProgressUpdateAlso"] as? Bool
-        
+
         var needProgressUpdate:Bool = false
         if(needFileProgressUpdateAlso != nil){
             needProgressUpdate = needFileProgressUpdateAlso!
         }
-        
+
         let imagesListString = arguments!["imageDataList"] as? String
-        
+
         if(imagesListString != nil){
-            
+
             let jsonData = imagesListString!.data(using: .utf8)!
-            
+
             var images:[ImageData] = []
             if let json = try! JSONSerialization.jsonObject(with: jsonData, options: .allowFragments) as? [Any] {
                 for item in json {
                     if let object = item as? [String: Any] {
                         // ID
-                        
+
                         let filePath = object["filePath"] as! String
                         let fileName = object["fileName"] as! String
                         let uniqueId = object["uniqueId"] as! String
                         let contentType = object["contentType"] as? String
-                        
-                        let imageDataInner:ImageData = ImageData(filePath: filePath, fileName: fileName, uniqueId: uniqueId, contentType: contentType)
+
+                        let imageUploadFolder = object["imageUploadFolder"] as? String
+
+                        let imageDataInner:ImageData = ImageData(filePath: filePath, fileName: fileName, uniqueId: uniqueId, contentType: contentType,imageFolderInBucket: imageUploadFolder)
                          images.append(imageDataInner)
 
 
-                       
-                        
+
+
                     }
                 }
-            
+
             }
-            
-            
+
+
             if(region == nil || subRegion == nil || bucket == nil || identityPoolId == nil  ){
                 result("function paramters are not supplied properly. Region, subregion, buckernamen identityPoolId cannot be null or empty")
             }else{
                 let multiAwsUploadHelper:AwsMultiImageUploadHelper = AwsMultiImageUploadHelper.init(region: region!, subRegion: subRegion!, identity: identityPoolId!, bucketName: bucket!, needFileProgressUpdateAlso: needProgressUpdate)
-                
+
                 multiAwsUploadHelper.uploadMultipleImages(imagesData:images, imageUploadSreamHelper:SwiftAmazonS3CognitoPlugin.imageUploadStreamHandler)
             }
         }else{
             result("image list is empty")
         }
-        
-        
-        
+
+
+
     }
 
     func deleteImage(_ call: FlutterMethodCall, result: @escaping FlutterResult){
@@ -122,11 +124,11 @@ private static  var imageUploadStreamHandler = ImageUploadStreamHandler()
         let subRegion = arguments!["subRegion"] as? String
 
         let awsHelper:AwsImageUploadHelper = AwsImageUploadHelper.init()
-        
+
         awsHelper.deleteImage(bucket: bucket, identity: identity, fileName: fileName, region: region, subRegion: subRegion) { deleteImageResult in
             result(deleteImageResult)}
-        
-    
+
+
     }
 
 
