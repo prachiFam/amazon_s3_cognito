@@ -8,15 +8,18 @@ class ImageData {
   String? amazonUrl;
   double? progress;
   String? state;
+  String? imageUploadFolder;
   bool isUploadError = false;
 
-  ImageData(this.fileName, this.filePath, {this.uniqueId});
+  ImageData(this.fileName, this.filePath,
+      {this.uniqueId, this.imageUploadFolder});
 
   // named constructor
   ImageData.fromJson(Map<String, dynamic> json)
       : fileName = json['fileName'],
         filePath = json['filePath'],
-        uniqueId = json['uniqueId'];
+        uniqueId = json['uniqueId'],
+        imageUploadFolder = json['imageUploadFolder'];
 
   // method
   Map<String, dynamic> toJson() {
@@ -24,6 +27,7 @@ class ImageData {
       'fileName': fileName,
       'filePath': filePath,
       'uniqueId': uniqueId,
+      'imageUploadFolder': imageUploadFolder
     };
   }
 
@@ -34,6 +38,7 @@ class ImageData {
     progress = another.progress;
     state = another.state;
     isUploadError = another.isUploadError;
+    imageUploadFolder = another.imageUploadFolder;
   }
 
   void fromMap(LinkedHashMap<Object?, Object?> map) {
@@ -57,5 +62,7 @@ class ImageData {
     if (map["isUploadError"] != null) {
       isUploadError = map["isUploadError"] as bool;
     }
+
+    imageUploadFolder = map["imageUploadFolder"]?.toString();
   }
 }
