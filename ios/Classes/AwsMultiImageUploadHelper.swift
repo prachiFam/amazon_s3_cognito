@@ -145,10 +145,9 @@ class AwsMultiImageUploadHelper{
         if(folderToUploadTo != nil){
             if(folderToUploadTo!.hasSuffix("/")){
                 key = folderToUploadTo! + fileName
-                }else{
+            }else{
                 key = folderToUploadTo! + "/" + fileName
-
-                }
+            }
 
         }
 
@@ -209,6 +208,15 @@ class AwsMultiImageUploadHelper{
                     }
                     return nil
                 }
+            }else{
+                //the file upload failed
+                if let completionBlock = completion {
+                                           print("error is we are not able to read the file")
+
+                    let error = NSError(domain: "", code: 401, userInfo: [ NSLocalizedDescriptionKey: "Unable to upload file. Unable to read file error"])
+
+                                           completionBlock(nil, error)
+                                       }
             }
 
 
