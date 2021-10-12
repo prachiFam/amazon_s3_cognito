@@ -143,7 +143,13 @@ class AwsMultiImageUploadHelper{
         var key = fileName
 
         if(folderToUploadTo != nil){
-            key = folderToUploadTo! + fileName
+            if(folderToUploadTo!.hasSuffix("/")){
+                key = folderToUploadTo! + fileName
+                }else{
+                key = folderToUploadTo! + "/" + fileName
+
+                }
+
         }
 
             // Upload progress block
