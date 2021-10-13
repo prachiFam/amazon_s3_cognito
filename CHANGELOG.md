@@ -44,5 +44,6 @@ Breaking changes area added.
 2) Added methods that can upload multiple images via a list
 3) When using multiple image upload, we can listen to image upload using event stream
 4) for IOS app now uses TransferUtility API's, since TransferManager API's are depracated
+5) Now all methods take subFolder to which we want to upload/ delete image.
 
 

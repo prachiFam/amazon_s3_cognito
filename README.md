@@ -41,8 +41,7 @@ import 'package:amazon_s3_cognito/aws_region.dart';
 //Use the below code to specify the region and sub region for image upload
 //Also this method allows to upload all file type including images and pdf etc.
 
-
-//imageData - this object will contain file details, like file namem file path, folder where to upload file inside bucket etc
+//imageData - this object will contain file details, like file name, file path, folder where to upload file inside bucket etc..
 //construct imagedata object
 ImageData imageData = ImageData("uniqueFileName", filePath,
         uniqueId: "uniqueIdToTrackImage", imageUploadFolder: "folder to upload inside bucket");
@@ -53,6 +52,10 @@ String uploadedImageUrl = await AmazonS3Cognito.upload(String bucket, String ide
                   String subRegion, ImageData imageData,
                   {bool needMultipartUpload = false})
 
+//Please Note: In bucket name only send bucket name. If you will include subfolder in it, the upload will fail
+//Example : if we want image to upload in bucket BUCKET_TEST, and inside that bucket we want to upload image into
+// MANAGEMENT folder, then in bucket name send only BUCKET_TEST and in ImageData.imageUploadFolder send MANAGEMENT
+//other wise the upload will not work.
 
 //we can now also upload multiple images via list and listener to its progress
 //and upload changes via stream.
