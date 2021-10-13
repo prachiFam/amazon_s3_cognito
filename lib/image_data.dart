@@ -1,8 +1,8 @@
 import 'dart:collection';
 
 class ImageData {
-  String fileName;
-  String filePath;
+  late String fileName;
+  late String filePath;
   String? uniqueId;
 
   String? amazonUrl;
@@ -13,6 +13,26 @@ class ImageData {
 
   ImageData(this.fileName, this.filePath,
       {this.uniqueId, this.imageUploadFolder});
+
+  ImageData.fromMap(LinkedHashMap<Object?, Object?> map) {
+    fileName = map["fileName"].toString();
+    filePath = map["filePath"].toString();
+
+    if (map["amazonImageUrl"] != null) {
+      amazonUrl = map["amazonImageUrl"].toString();
+    }
+
+    if (map["progress"] != null) {
+      progress = double.parse(map["progress"].toString().trim());
+    }
+
+    state = map["state"]?.toString();
+    if (map["isUploadError"] != null) {
+      isUploadError = map["isUploadError"] as bool;
+    }
+
+    imageUploadFolder = map["imageUploadFolder"]?.toString();
+  }
 
   // named constructor
   ImageData.fromJson(Map<String, dynamic> json)
@@ -41,7 +61,7 @@ class ImageData {
     imageUploadFolder = another.imageUploadFolder;
   }
 
-  void fromMap(LinkedHashMap<Object?, Object?> map) {
+  void getObjFromMap(LinkedHashMap<Object?, Object?> map) {
     if (map["fileName"] != null) {
       fileName = map["fileName"].toString();
     }
