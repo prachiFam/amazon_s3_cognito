@@ -15,7 +15,8 @@ class AmazonS3Cognito {
   }
 
   static Future<String?> upload(String bucket, String identity, String region,
-      String subRegion, ImageData imageData) async {
+      String subRegion, ImageData imageData,
+      {bool needMultipartUpload = false}) async {
     final Map<String, dynamic> params = <String, dynamic>{
       'filePath': imageData.filePath,
       'bucket': bucket,
@@ -24,7 +25,13 @@ class AmazonS3Cognito {
       'imageUploadFolder': imageData.imageUploadFolder,
       'region': region,
       'subRegion': subRegion,
-      'uniqueId': imageData.uniqueId
+      'uniqueId': imageData.uniqueId,
+
+      /// needMultipartUpload - use this parameter when your files are
+      /// very large and file uploads take more than 1 hour time
+      /// for small files with uploads less than hour this must be false
+      /// this is only available for IOS
+      'needMultipartUpload': needMultipartUpload
     };
     final String? imagePath =
         await _channel.invokeMethod('uploadImage', params);
@@ -44,7 +51,7 @@ class AmazonS3Cognito {
       'imageName': imageName,
       'region': region,
       'subRegion': subRegion,
-      'imageUploadFolder': folderInBucketWhereImgIsUploaded
+      'imageUploadFolder': folderInBucketWhereImgIsUploaded,
     };
     final String? imagePath =
         await _channel.invokeMethod('deleteImage', params);
@@ -57,7 +64,8 @@ class AmazonS3Cognito {
       String region,
       String subRegion,
       List<ImageData> imageData,
-      bool needProgressUpdateAlso) async {
+      bool needProgressUpdateAlso,
+      {bool needMultipartUpload = false}) async {
     String imageDataList = json.encode(imageData);
 
     final Map<String, dynamic> params = <String, dynamic>{
@@ -66,7 +74,13 @@ class AmazonS3Cognito {
       'region': region,
       'subRegion': subRegion,
       'imageDataList': imageDataList,
-      'needProgressUpdateAlso': needProgressUpdateAlso
+      'needProgressUpdateAlso': needProgressUpdateAlso,
+
+      /// needMultipartUpload - use this parameter when your files are
+      /// very large and file uploads take more than 1 hour time
+      /// for small files with uploads less than hour this must be false
+      /// this is only available for IOS
+      'needMultipartUpload': needMultipartUpload
     };
     final String? imagePath =
         await _channel.invokeMethod('uploadImages', params);

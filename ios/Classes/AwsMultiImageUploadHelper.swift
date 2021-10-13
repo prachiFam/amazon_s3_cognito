@@ -13,7 +13,6 @@ typealias progressBlock = (_ progress: Double) -> Void //2
 typealias completionBlock = (_ response: Any?, _ error: Error?) -> Void //3
 
 class AwsMultiImageUploadHelper{
-    
 
     var bucketName:String = ""
     var identityPoolId:String = ""
@@ -86,6 +85,106 @@ class AwsMultiImageUploadHelper{
             }
         })
 
+    }
+
+    func uploadVeryLargeSingleFile(imageDataObj:ImageData,imageUploadResult:@escaping  (String)->()) {
+
+        var contentType:String = "image/jpeg"
+        if(imageDataObj.contentType != nil &&
+            imageDataObj.contentType!.count > 0){
+            contentType = imageDataObj.contentType!
+        }
+
+        if(imageDataObj.contentType == nil || imageDataObj.contentType?.count == 0 &&  imageDataObj.fileName.contains(".")){
+
+            contentType = getContentTypeFromFile(fileName: imageDataObj.fileName)
+        }
+
+        uploadMultipartfile(filePath: imageDataObj.filePath, fileName: imageDataObj.fileName,folderToUploadTo: imageDataObj.imageUploadFolder, contenType: contentType, progress: nil, completion: {[weak self] (uploadedFileUrl, error) in
+
+            guard self != nil else { return }
+            if let finalPath = uploadedFileUrl as? String { // 3
+
+                    print("✅ Upload successed (\(finalPath))")
+
+                    imageUploadResult(finalPath)
+
+
+
+            } else {
+
+                print("\(String(describing: error?.localizedDescription))") // 4
+
+                let errorString = error?.localizedDescription
+
+                if(errorString != nil){
+                    imageUploadResult("❌ Upload failed. Reason " + errorString! )
+                }else{
+                    imageUploadResult("❌ Upload failed. Reason unknown" )
+                }
+
+
+
+            }
+        })
+
+    }
+
+    func uploadVeryLargeFiles(imagesData:[ImageData],imageUploadSreamHelper:ImageUploadStreamHandler){
+
+        for imageDataObj in imagesData{
+
+
+            var contentType:String = "image/jpeg"
+            if(imageDataObj.contentType != nil &&
+                imageDataObj.contentType!.count > 0){
+                contentType = imageDataObj.contentType!
+            }
+
+            if(imageDataObj.contentType == nil || imageDataObj.contentType?.count == 0 &&  imageDataObj.fileName.contains(".")){
+
+                contentType = getContentTypeFromFile(fileName: imageDataObj.fileName)
+            }
+
+
+            uploadMultipartfile(filePath: imageDataObj.filePath, fileName: imageDataObj.fileName,folderToUploadTo: imageDataObj.imageUploadFolder, contenType: contentType, progress: {[weak self] ( uploadProgress) in
+
+                guard self != nil else { return }
+
+
+                if((self?.needFileProgressUpdateAlso) != nil && self?.needFileProgressUpdateAlso == true){
+
+                    imageDataObj.state = "FILE PROGRESS"
+
+                    imageDataObj.progress = Double(uploadProgress)
+
+                    imageUploadSreamHelper.addImageUploadResult(imageData: imageDataObj)
+                }
+
+
+
+            } , completion: {[weak self] (uploadedFileUrl, error) in
+
+                guard self != nil else { return }
+                if let finalPath = uploadedFileUrl as? String { // 3
+                    imageDataObj.state = "COMPLETED"
+                    imageDataObj.amazonImageUrl = uploadedFileUrl as? String
+                    imageUploadSreamHelper.addImageUploadResult(imageData: imageDataObj)
+
+                    print("Uploaded file url: " + finalPath)
+                } else {
+                    imageDataObj.isUploadError = true
+                    imageDataObj.state = "FAILURE"
+                    imageDataObj.progress = 0
+                    imageDataObj.failureReason = error?.localizedDescription
+
+                    imageUploadSreamHelper.addImageUploadResult(imageData: imageDataObj)
+
+
+                    print("\(String(describing: error?.localizedDescription))") // 4
+                }
+            })
+        }
     }
 
 
@@ -236,6 +335,89 @@ class AwsMultiImageUploadHelper{
 
 
                 awsTransferUtility.uploadData(data!, bucket: bucketName, key: key, contentType: contenType, expression: expression, completionHandler: completionHandler).continueWith { (task) -> Any? in
+                    if let error = task.error {
+
+                        if let completionBlock = completion {
+                            print("error is :\(String(describing: error.localizedDescription))")
+                            completionBlock(nil, error)
+                        }
+
+
+                        print("error is: \(error.localizedDescription)")
+                    }
+                    if let _ = task.result {
+                        // your uploadTask
+                    }
+                    return nil
+                }
+            }else{
+                //the file upload failed
+                if let completionBlock = completion {
+                                           print("error is we are not able to read the file")
+
+                    let error = NSError(domain: "", code: 401, userInfo: [ NSLocalizedDescriptionKey: "Unable to upload file. Unable to read file error"])
+
+                                           completionBlock(nil, error)
+                                       }
+            }
+
+
+        }
+
+
+    private func uploadMultipartfile(filePath: String, fileName: String, folderToUploadTo:String?, contenType: String, progress: progressBlock?, completion: completionBlock?) {
+
+        var key = fileName
+
+        if(folderToUploadTo != nil){
+            if(folderToUploadTo!.hasSuffix("/")){
+                key = folderToUploadTo! + fileName
+            }else{
+                key = folderToUploadTo! + "/" + fileName
+            }
+
+        }
+
+        let uploadExpression = AWSS3TransferUtilityMultiPartUploadExpression()
+        uploadExpression.setValue("AES256", forRequestHeader: "x-amz-server-side-encryption-customer-algorithm")
+        uploadExpression.progressBlock = {(task, awsProgress) in
+            guard let uploadProgress = progress else { return }
+
+            print(awsProgress.fractionCompleted.description)
+
+            uploadProgress(awsProgress.fractionCompleted)
+        }
+
+
+            // Completion block
+            var completionHandler: AWSS3TransferUtilityMultiPartUploadCompletionHandlerBlock
+            completionHandler = { (task, error) -> Void in
+                if error == nil {
+                    let url = AWSS3.default().configuration.endpoint.url
+                    let publicURL = url?.appendingPathComponent(self.bucketName).appendingPathComponent(key)
+                    print("Uploaded to:\(String(describing: publicURL))")
+                    if let completionBlock = completion {
+                        completionBlock(publicURL?.absoluteString, nil)
+                    }
+                } else {
+                    if let completionBlock = completion {
+                        print("error is :\(String(describing: error.debugDescription))")
+                        completionBlock(nil, error)
+                    }
+                }
+            }
+            // Start uploading using AWSS3TransferUtility
+            let awsTransferUtility = AWSS3TransferUtility.default()
+
+
+            let data:Data? = FileManager.default.contents(atPath: filePath)
+
+            if(data != nil){
+
+                print("image upload will start")
+
+
+                awsTransferUtility.uploadUsingMultiPart(data: data!, bucket: bucketName, key: key, contentType: contenType, expression: uploadExpression, completionHandler: completionHandler).continueWith { (task) -> Any? in
                     if let error = task.error {
 
                         if let completionBlock = completion {

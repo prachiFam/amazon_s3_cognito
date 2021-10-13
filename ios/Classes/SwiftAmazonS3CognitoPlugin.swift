@@ -86,6 +86,12 @@ private static  var imageUploadStreamHandler = ImageUploadStreamHandler()
 
         let needFileProgressUpdateAlso = arguments!["needProgressUpdateAlso"] as? Bool
 
+        var needMultipartUpload = arguments!["needMultipartUpload"] as? Bool
+
+        if(needMultipartUpload == nil){
+            needMultipartUpload = false
+        }
+
         var needProgressUpdate:Bool = false
         if(needFileProgressUpdateAlso != nil){
             needProgressUpdate = needFileProgressUpdateAlso!
@@ -113,9 +119,6 @@ private static  var imageUploadStreamHandler = ImageUploadStreamHandler()
                         let imageDataInner:ImageData = ImageData(filePath: filePath, fileName: fileName, uniqueId: uniqueId, contentType: contentType,imageFolderInBucket: imageUploadFolder)
                          images.append(imageDataInner)
 
-
-
-
                     }
                 }
 
@@ -127,7 +130,12 @@ private static  var imageUploadStreamHandler = ImageUploadStreamHandler()
             }else{
                 let multiAwsUploadHelper:AwsMultiImageUploadHelper = AwsMultiImageUploadHelper.init(region: region!, subRegion: subRegion!, identity: identityPoolId!, bucketName: bucket!, needFileProgressUpdateAlso: needProgressUpdate)
 
-                multiAwsUploadHelper.uploadMultipleImages(imagesData:images, imageUploadSreamHelper:SwiftAmazonS3CognitoPlugin.imageUploadStreamHandler)
+                if(needMultipartUpload!){
+                    multiAwsUploadHelper.uploadMultipleImages(imagesData:images, imageUploadSreamHelper:SwiftAmazonS3CognitoPlugin.imageUploadStreamHandler)
+                }else{
+                    multiAwsUploadHelper.uploadVeryLargeFiles(imagesData:images, imageUploadSreamHelper:SwiftAmazonS3CognitoPlugin.imageUploadStreamHandler)
+                }
+
             }
         }else{
             result("image list is empty")
