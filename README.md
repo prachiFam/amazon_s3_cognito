@@ -1,18 +1,8 @@
 # amazon_s3_cognito
 
-
 Amazon S3 plugin for Flutter
 
 Unofficial Amazon S3 plugin written in Dart for Flutter. 
-
-Only supports Amazon SDK up to 2.20(excluded), since starting with 2.20, the SDK dropped the deprecated 
-"AWSS3TransferManager" which is still in use within this plugin.
-
-https://github.com/aws-amplify/aws-sdk-ios/releases/tag/2.20.0 
-
-The plugin is extension if flutter-amazon-s3 plugin which can be found here 
-https://pub.dev/packages/flutter_amazon_s3. This plugin adds image list and delete functionality and also
-it allows user to upload image when region and sub-region are different.
 
 Plugin in maintained by fäm properties<no-reply@famproperties.com>.
 
@@ -90,7 +80,7 @@ String uploadedImageUrl = await AmazonS3Cognito.upload(String bucket, String ide
     }
 
     //use multiple image upload method
-    uploadImages(
+    AmazonS3Cognito.uploadImages(
           String bucket,
           String identity,
           String region,
@@ -124,16 +114,12 @@ String uploadedImageUrl = await AmazonS3Cognito.upload(String bucket, String ide
 Inside AndroidManifest.xml register TransferService like below
 
  <application
- .....
-
  <service android:name= "com.amazonaws.mobileconnectors.s3.transferutility.TransferService" android:enabled="true" />
-
 </application>
 
 ### iOS
 
 inside your Appdelegate add following method
-
 
 func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String, completionHandler: @escaping () -> Void) {
     // Store the completion handler.
