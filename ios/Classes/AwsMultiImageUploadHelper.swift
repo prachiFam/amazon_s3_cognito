@@ -35,6 +35,8 @@ class AwsMultiImageUploadHelper{
             region: subRegion1,
             credentialsProvider: credentialsProvider)
 
+        //AWSS3.register(with: configuration!, forKey: "defaultKey")
+
         AWSServiceManager.default().defaultServiceConfiguration = configuration
 
 
@@ -71,7 +73,14 @@ class AwsMultiImageUploadHelper{
 
                 print("\(String(describing: error?.localizedDescription))") // 4
 
-                imageUploadResult("❌ Upload failed (\(String(describing: error?.localizedDescription)))")
+                let errorString = error?.localizedDescription
+
+                if(errorString != nil){
+                    imageUploadResult("❌ Upload failed. Reason " + errorString! )
+                }else{
+                    imageUploadResult("❌ Upload failed. Reason unknown" )
+                }
+
 
 
             }
@@ -192,11 +201,10 @@ class AwsMultiImageUploadHelper{
 
             expression.progressBlock = {(task, awsProgress) in
                 guard let uploadProgress = progress else { return }
-                DispatchQueue.main.async {
-                    print(awsProgress.fractionCompleted.description)
 
-                    uploadProgress(awsProgress.fractionCompleted)
-                }
+                print(awsProgress.fractionCompleted.description)
+
+                uploadProgress(awsProgress.fractionCompleted)
             }
             // Completion block
             var completionHandler: AWSS3TransferUtilityUploadCompletionHandlerBlock?
@@ -256,5 +264,42 @@ class AwsMultiImageUploadHelper{
 
 
         }
+
+
+
+
+    func deleteImage(fileName:String,folderToUploadTo:String?,
+                     imageDeleteResult:@escaping  (String)->()){
+
+        var key = fileName
+
+        if(folderToUploadTo != nil){
+            if(folderToUploadTo!.hasSuffix("/")){
+                key = folderToUploadTo! + fileName
+            }else{
+                key = folderToUploadTo! + "/" + fileName
+            }
+
+        }
+
+
+        let deleteObjectRequest = AWSS3DeleteObjectRequest()
+        deleteObjectRequest?.bucket = bucketName // bucket name
+        deleteObjectRequest?.key = key
+
+        let s3 = AWSS3.default()
+
+        s3.deleteObject(deleteObjectRequest!).continueWith { (task:AWSTask) -> AnyObject? in
+            if let error = task.error {
+                print("Error occurred: \(error)")
+                imageDeleteResult("Error occurred: \(error)")
+                return nil
+            }
+            print("image deleted successfully.")
+            imageDeleteResult("image deleted successfully.")
+            return nil
+        }
+
+    }
     
 }

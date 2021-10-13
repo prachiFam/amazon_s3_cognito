@@ -43,23 +43,35 @@ private static  var imageUploadStreamHandler = ImageUploadStreamHandler()
 
         let fileName = arguments!["imageName"] as! String
 
+
         let region = arguments!["region"] as! String
 
         let subRegion = arguments!["subRegion"] as! String
 
+
+
         let contentTypeParam = arguments!["contentType"] as? String
+
+        var uniqueId = arguments!["uniqueId"] as? String
+
+        if(uniqueId == nil){
+            uniqueId = "-1"
+        }
 
 
         let multiAwsUploadHelper:AwsMultiImageUploadHelper = AwsMultiImageUploadHelper.init(region: region, subRegion: subRegion, identity: identity, bucketName: bucket, needFileProgressUpdateAlso: false)
 
-        let imageData:ImageData = ImageData(filePath: imagePath, fileName: fileName, uniqueId: "-1", contentType: contentTypeParam, imageFolderInBucket: imageUploadFolder)
 
-        multiAwsUploadHelper.uploadSingleFile(imageDataObj: imageData){ (awsUploadReult) in
-                                                result(awsUploadReult)}
+        let imageData:ImageData = ImageData(filePath: imagePath, fileName: fileName, uniqueId: uniqueId!, contentType: contentTypeParam, imageFolderInBucket: imageUploadFolder)
 
+        multiAwsUploadHelper.uploadSingleFile(imageDataObj: imageData){ (awsUploadResult) in
 
-//        awsHelper.uploadImageForRegion(imagePath: imagePath, bucket: bucket, identity: identity, fileName: fileName, region: region, subRegion: subRegion, contentTypeParam: contentTypeParam) { (awsUploadReult) in
-//            result(awsUploadReult)}
+            print("reesult is " + awsUploadResult)
+
+            result(awsUploadResult)
+
+        }
+
 
     }
 
@@ -127,16 +139,21 @@ private static  var imageUploadStreamHandler = ImageUploadStreamHandler()
 
     func deleteImage(_ call: FlutterMethodCall, result: @escaping FlutterResult){
         let arguments = call.arguments as? NSDictionary
-        let bucket = arguments!["bucket"] as? String
-        let identity = arguments!["identity"] as? String
-        let fileName = arguments!["imageName"] as? String
-        let region = arguments!["region"] as? String
-        let subRegion = arguments!["subRegion"] as? String
+        let bucket = arguments!["bucket"] as! String
+        let identity = arguments!["identity"] as! String
+        let fileName = arguments!["imageName"] as! String
+        let region = arguments!["region"] as! String
+        let subRegion = arguments!["subRegion"] as! String
 
-        let awsHelper:AwsImageUploadHelper = AwsImageUploadHelper.init()
+        let imageUploadFolder = arguments!["imageUploadFolder"] as? String
 
-        awsHelper.deleteImage(bucket: bucket, identity: identity, fileName: fileName, region: region, subRegion: subRegion) { deleteImageResult in
-            result(deleteImageResult)}
+        let multiAwsUploadHelper:AwsMultiImageUploadHelper = AwsMultiImageUploadHelper.init(region: region, subRegion: subRegion, identity: identity, bucketName: bucket, needFileProgressUpdateAlso: false)
+
+
+        multiAwsUploadHelper.deleteImage(fileName: fileName, folderToUploadTo: imageUploadFolder)
+            { deleteImageResult in
+                result(deleteImageResult)
+        }
 
 
     }

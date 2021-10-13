@@ -23,21 +23,28 @@ class AmazonS3Cognito {
       'imageName': imageData.fileName,
       'imageUploadFolder': imageData.imageUploadFolder,
       'region': region,
-      'subRegion': subRegion
+      'subRegion': subRegion,
+      'uniqueId': imageData.uniqueId
     };
     final String? imagePath =
         await _channel.invokeMethod('uploadImage', params);
     return imagePath;
   }
 
-  static Future<String?> delete(String bucket, String identity,
-      String imageName, String region, String subRegion) async {
+  static Future<String?> delete(
+      String bucket,
+      String identity,
+      String imageName,
+      String? folderInBucketWhereImgIsUploaded,
+      String region,
+      String subRegion) async {
     final Map<String, dynamic> params = <String, dynamic>{
       'bucket': bucket,
       'identity': identity,
       'imageName': imageName,
       'region': region,
-      'subRegion': subRegion
+      'subRegion': subRegion,
+      'imageUploadFolder': folderInBucketWhereImgIsUploaded
     };
     final String? imagePath =
         await _channel.invokeMethod('deleteImage', params);
