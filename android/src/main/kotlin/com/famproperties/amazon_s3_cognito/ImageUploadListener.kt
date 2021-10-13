@@ -23,7 +23,8 @@ class ImageUploadListener: EventChannel.StreamHandler {
                 "isUploadError" to imageData.isUploadError,
                 "state" to imageData.state,
                 "amazonImageUrl" to imageData.amazonImageUrl,
-                "progress" to imageData.progress)
+                "progress" to imageData.progress,
+                "imageUploadFolder" to imageData.imageUploadFolder)
 
         sink?.success(imageDataHashMap)
     }

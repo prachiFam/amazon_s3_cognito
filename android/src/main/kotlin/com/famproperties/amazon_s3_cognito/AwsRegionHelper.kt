@@ -19,7 +19,6 @@ class AwsRegionHelper(private val context: Context,
                       private val REGION: String, private val SUB_REGION: String) {
 
     private var transferUtility: TransferUtility
-    private var nameOfUploadedFile: String? = null
     private var region1:Regions = Regions.DEFAULT_REGION
     private var subRegion1:Regions = Regions.DEFAULT_REGION
 
@@ -47,8 +46,6 @@ class AwsRegionHelper(private val context: Context,
                 .build()
     }
 
-    private val uploadedUrl: String
-        get() = getUploadedUrl(nameOfUploadedFile)
 
     private fun getUploadedUrl(key: String?): String {
         return "https://s3-"+subRegion1.getName()+".amazonaws.com/"+BUCKET_NAME+"/"+key
@@ -69,15 +66,26 @@ class AwsRegionHelper(private val context: Context,
     }
 
     @Throws(UnsupportedEncodingException::class)
-    fun deleteImage(imageName: String, onUploadCompleteListener: OnUploadCompleteListener): String {
+    fun deleteImage(imageName: String,folderToUploadTo: String?, onUploadCompleteListener: OnUploadCompleteListener): String {
 
         initRegion()
 
         TransferNetworkLossHandler.getInstance(context.applicationContext)
 
+        var key = imageName
+
+        if(folderToUploadTo != null){
+            key = if(folderToUploadTo.endsWith("/")){
+                folderToUploadTo + imageName
+            }else{
+                "$folderToUploadTo/$imageName"
+            }
+
+        }
+
         val amazonS3Client =  getAmazonS3Client()
         Thread( Runnable{
-            amazonS3Client.deleteObject(BUCKET_NAME, imageName)
+            amazonS3Client.deleteObject(BUCKET_NAME, key)
         }).start()
         onUploadCompleteListener.onUploadComplete("Success")
         return imageName
@@ -85,21 +93,29 @@ class AwsRegionHelper(private val context: Context,
     }
 
     @Throws(UnsupportedEncodingException::class)
-    fun uploadImage(image: File, imageName: String, onUploadCompleteListener: OnUploadCompleteListener): String {
+    fun uploadImage(image: File, imageName: String,folderToUploadTo:String? ,onUploadCompleteListener: OnUploadCompleteListener): String {
 
         initRegion()
 
         TransferNetworkLossHandler.getInstance(context.applicationContext)
 
+        var key = imageName
 
-        nameOfUploadedFile = imageName
+        if(folderToUploadTo != null){
+            key = if(folderToUploadTo.endsWith("/")){
+                folderToUploadTo + imageName
+            }else{
+                "$folderToUploadTo/$imageName"
+            }
 
-        val transferObserver = transferUtility.upload(BUCKET_NAME, nameOfUploadedFile, image)
+        }
+
+        val transferObserver = transferUtility.upload(BUCKET_NAME, key, image)
 
         transferObserver.setTransferListener(object : TransferListener {
             override fun onStateChanged(id: Int, state: TransferState) {
                 if (state == TransferState.COMPLETED) {
-                    onUploadCompleteListener.onUploadComplete(getUploadedUrl(nameOfUploadedFile))
+                    onUploadCompleteListener.onUploadComplete(getUploadedUrl(key))
                 }
                 if (state == TransferState.FAILED ||  state == TransferState.WAITING_FOR_NETWORK) {
                     onUploadCompleteListener.onFailed()
@@ -113,7 +129,7 @@ class AwsRegionHelper(private val context: Context,
 
             }
         })
-        return uploadedUrl
+        return getUploadedUrl(key)
     }
 
 

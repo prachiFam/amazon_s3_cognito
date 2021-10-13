@@ -45,7 +45,7 @@ class AwsMultipleFileUploadHelper(private val context: Context,
                 .build()
     }
 
-    private fun getUploadedUrl(key: String?): String {
+    private fun getUploadedUrl(key: String): String {
         return "https://s3-"+subRegion1.getName()+".amazonaws.com/"+BUCKET_NAME+"/"+key
         //return  ""+key
     }
@@ -67,13 +67,26 @@ class AwsMultipleFileUploadHelper(private val context: Context,
 
         for(imageData in imagesData){
             val file = File(imageData.filePath)
-            val transferObserver = transferUtility.upload(BUCKET_NAME, imageData.fileName, file)
+
+            var key = imageData.fileName
+
+            if(imageData.imageUploadFolder != null){
+
+                key = if(imageData.imageUploadFolder!!.endsWith("/")){
+                    imageData.imageUploadFolder  + imageData.fileName
+                }else{
+                    "$imageData.imageUploadFolder /$imageData.fileName"
+                }
+
+            }
+
+            val transferObserver = transferUtility.upload(BUCKET_NAME, key, file)
             imageData.isUploadInProgress = true
             transferObserver.setTransferListener(object : TransferListener {
                 override fun onStateChanged(id: Int, state: TransferState) {
                     if (state == TransferState.COMPLETED) {
                         imageData.isUploadInProgress = false
-                        imageData.amazonImageUrl = getUploadedUrl(imageData.fileName)
+                        imageData.amazonImageUrl = getUploadedUrl(key)
                         imageData.state = "COMPLETED"
                         imageUploadListener.sendToStream(imageData)
 

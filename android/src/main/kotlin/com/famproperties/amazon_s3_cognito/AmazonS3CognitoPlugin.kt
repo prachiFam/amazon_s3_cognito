@@ -68,10 +68,13 @@ class AmazonS3CognitoPlugin :FlutterPlugin,MethodCallHandler, ActivityAware , Se
             if(filePath == null){
                 return  result.error("file path cannot be empty","error",1)
             }else{
+
+                var imageUploadFolder = call.argument<String>("imageUploadFolder")
+
                 val file = File(filePath)
                 try {
                     awsRegionHelper = AwsRegionHelper(context, bucket!!, identity!!, region!!, subRegion!!)
-                    awsRegionHelper!!.uploadImage(file, fileName!!, object : AwsRegionHelper.OnUploadCompleteListener {
+                    awsRegionHelper!!.uploadImage(file, fileName!!,imageUploadFolder, object : AwsRegionHelper.OnUploadCompleteListener {
                         override fun onFailed() {
                             System.out.println("\n❌ upload failed")
                             try{
@@ -94,8 +97,12 @@ class AmazonS3CognitoPlugin :FlutterPlugin,MethodCallHandler, ActivityAware , Se
 
         } else if (call.method.equals("deleteImage")) {
             try {
+
+                var imageUploadFolder = call.argument<String>("imageUploadFolder")
+
+
                 awsRegionHelper = AwsRegionHelper(context, bucket!!, identity!!, region!!, subRegion!!)
-                awsRegionHelper!!.deleteImage(fileName!!, object : AwsRegionHelper.OnUploadCompleteListener{
+                awsRegionHelper!!.deleteImage(fileName!!, imageUploadFolder,object : AwsRegionHelper.OnUploadCompleteListener{
 
                     override fun onFailed() {
                         System.out.println("\n❌ delete failed")
@@ -131,7 +138,8 @@ class AmazonS3CognitoPlugin :FlutterPlugin,MethodCallHandler, ActivityAware , Se
                         val path:String = jsonObject.getString("filePath")
                         val nameOfFile:String = jsonObject.getString("fileName")
                         val uniqueKey:String =  jsonObject.getString("uniqueId")
-                        val imageData = ImageData(path,nameOfFile,uniqueKey)
+                        val imageUploadFolder:String =  jsonObject.getString("imageUploadFolder")
+                        val imageData = ImageData(path,nameOfFile,uniqueKey,imageUploadFolder)
                         list.add(imageData)
                     }
                 }
