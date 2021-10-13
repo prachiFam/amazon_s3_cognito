@@ -58,17 +58,37 @@ private static  var imageUploadStreamHandler = ImageUploadStreamHandler()
             uniqueId = "-1"
         }
 
+        var needMultipartUpload = arguments!["needMultipartUpload"] as? Bool
+
+        if(needMultipartUpload == nil){
+            needMultipartUpload = false
+        }
+
 
         let multiAwsUploadHelper:AwsMultiImageUploadHelper = AwsMultiImageUploadHelper.init(region: region, subRegion: subRegion, identity: identity, bucketName: bucket, needFileProgressUpdateAlso: false)
 
 
         let imageData:ImageData = ImageData(filePath: imagePath, fileName: fileName, uniqueId: uniqueId!, contentType: contentTypeParam, imageFolderInBucket: imageUploadFolder)
 
-        multiAwsUploadHelper.uploadSingleFile(imageDataObj: imageData){ (awsUploadResult) in
+        if(needMultipartUpload!){
 
-            print("reesult is " + awsUploadResult)
+            multiAwsUploadHelper.uploadVeryLargeSingleFile(imageDataObj: imageData){ (awsUploadResult) in
 
-            result(awsUploadResult)
+                print("reesult is " + awsUploadResult)
+
+                result(awsUploadResult)
+
+            }
+
+
+        }else{
+            multiAwsUploadHelper.uploadSingleFile(imageDataObj: imageData){ (awsUploadResult) in
+
+                print("reesult is " + awsUploadResult)
+
+                result(awsUploadResult)
+
+            }
 
         }
 
