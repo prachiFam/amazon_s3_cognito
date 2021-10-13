@@ -14,13 +14,8 @@ class AmazonS3Cognito {
     return version;
   }
 
-  static Future<String?> upload(
-      String bucket,
-      String identity,
-      String region,
-      String subRegion,
-      ImageData imageData,
-      bool needProgressUpdateAlso) async {
+  static Future<String?> upload(String bucket, String identity, String region,
+      String subRegion, ImageData imageData) async {
     final Map<String, dynamic> params = <String, dynamic>{
       'filePath': imageData.filePath,
       'bucket': bucket,
