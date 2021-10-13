@@ -24,7 +24,7 @@ private static  var imageUploadStreamHandler = ImageUploadStreamHandler()
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
          if(call.method.elementsEqual("uploadImage")){
-              uploadImageForRegion(call,result: result)
+            uploadSingleImage(call,result: result)
           }else if(call.method.elementsEqual("deleteImage")){
               deleteImage(call,result: result)
           }else if(call.method.elementsEqual("uploadImages")){
@@ -32,24 +32,34 @@ private static  var imageUploadStreamHandler = ImageUploadStreamHandler()
         }
       }
 
-    func uploadImageForRegion(_ call: FlutterMethodCall, result: @escaping FlutterResult){
+    func uploadSingleImage(_ call: FlutterMethodCall, result: @escaping FlutterResult){
               let arguments = call.arguments as? NSDictionary
-              let imagePath = arguments!["filePath"] as? String
-              let bucket = arguments!["bucket"] as? String
-              let identity = arguments!["identity"] as? String
-              let fileName = arguments!["imageName"] as? String
-              let region = arguments!["region"] as? String
-              let subRegion = arguments!["subRegion"] as? String
+        let imagePath:String = arguments!["filePath"] as! String
+        let bucket:String = arguments!["bucket"] as! String
 
-            let contentTypeParam = arguments!["contentType"] as? String
+        let imageUploadFolder:String? = arguments!["imageUploadFolder"] as? String
+
+        let identity:String = arguments!["identity"] as! String
+
+        let fileName = arguments!["imageName"] as! String
+
+        let region = arguments!["region"] as! String
+
+        let subRegion = arguments!["subRegion"] as! String
+
+        let contentTypeParam = arguments!["contentType"] as? String
 
 
-              print("region" + region!)
+        let multiAwsUploadHelper:AwsMultiImageUploadHelper = AwsMultiImageUploadHelper.init(region: region, subRegion: subRegion, identity: identity, bucketName: bucket, needFileProgressUpdateAlso: false)
 
-        let awsHelper:AwsImageUploadHelper = AwsImageUploadHelper.init()
+        let imageData:ImageData = ImageData(filePath: imagePath, fileName: fileName, uniqueId: "-1", contentType: contentTypeParam, imageFolderInBucket: imageUploadFolder)
 
-        awsHelper.uploadImageForRegion(imagePath: imagePath, bucket: bucket, identity: identity, fileName: fileName, region: region, subRegion: subRegion, contentTypeParam: contentTypeParam) { (awsUploadReult) in
-            result(awsUploadReult)}
+        multiAwsUploadHelper.uploadSingleFile(imageDataObj: imageData){ (awsUploadReult) in
+                                                result(awsUploadReult)}
+
+
+//        awsHelper.uploadImageForRegion(imagePath: imagePath, bucket: bucket, identity: identity, fileName: fileName, region: region, subRegion: subRegion, contentTypeParam: contentTypeParam) { (awsUploadReult) in
+//            result(awsUploadReult)}
 
     }
 

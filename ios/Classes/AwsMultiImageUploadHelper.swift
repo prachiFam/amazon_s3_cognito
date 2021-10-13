@@ -43,12 +43,47 @@ class AwsMultiImageUploadHelper{
         }
     }
 
+    func uploadSingleFile(imageDataObj:ImageData,imageUploadResult:@escaping  (String)->()) {
+
+        var contentType:String = "image/jpeg"
+        if(imageDataObj.contentType != nil &&
+            imageDataObj.contentType!.count > 0){
+            contentType = imageDataObj.contentType!
+        }
+
+        if(imageDataObj.contentType == nil || imageDataObj.contentType?.count == 0 &&  imageDataObj.fileName.contains(".")){
+
+            contentType = getContentTypeFromFile(fileName: imageDataObj.fileName)
+        }
+
+        uploadfile(filePath: imageDataObj.filePath, fileName: imageDataObj.fileName,folderToUploadTo: imageDataObj.imageUploadFolder, contenType: contentType, progress: nil, completion: {[weak self] (uploadedFileUrl, error) in
+
+            guard self != nil else { return }
+            if let finalPath = uploadedFileUrl as? String { // 3
+
+                    print("✅ Upload successed (\(finalPath))")
+
+                    imageUploadResult(finalPath)
+
+
+
+            } else {
+
+                print("\(String(describing: error?.localizedDescription))") // 4
+
+                imageUploadResult("❌ Upload failed (\(String(describing: error?.localizedDescription)))")
+
+
+            }
+        })
+
+    }
+
 
     func uploadMultipleImages(imagesData:[ImageData],imageUploadSreamHelper:ImageUploadStreamHandler){
 
         for imageDataObj in imagesData{
 
-            let fileUrl = URL(fileURLWithPath: imageDataObj.filePath)
 
             var contentType:String = "image/jpeg"
             if(imageDataObj.contentType != nil &&
