@@ -61,7 +61,7 @@ class ImageData {
     imageUploadFolder = another.imageUploadFolder;
   }
 
-  void getObjFromMap(LinkedHashMap<Object?, Object?> map) {
+  void initFromMap(LinkedHashMap<Object?, Object?> map) {
     if (map["fileName"] != null) {
       fileName = map["fileName"].toString();
     }
