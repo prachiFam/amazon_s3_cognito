@@ -38,3 +38,11 @@ the documents and image urls path are now returned correctly.
 ## 0.6.0
 prerelease -> this version includes null safety
 
+## 0.7.0
+Breaking changes area added.
+1) fixed issue : The plugins amazon_s3_cognito, version of the Android embedding
+2) Added methods that can upload multiple images via a list
+3) When using multiple image upload, we can listen to image upload using event stream
+4) for IOS app now uses TransferUtility API's, since TransferManager API's are depracated
+
+
