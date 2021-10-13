@@ -282,7 +282,6 @@ class AwsMultiImageUploadHelper{
 
         }
 
-
         let deleteObjectRequest = AWSS3DeleteObjectRequest()
         deleteObjectRequest?.bucket = bucketName // bucket name
         deleteObjectRequest?.key = key
