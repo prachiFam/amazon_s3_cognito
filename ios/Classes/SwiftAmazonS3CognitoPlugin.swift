@@ -150,7 +150,7 @@ private static  var imageUploadStreamHandler = ImageUploadStreamHandler()
             }else{
                 let multiAwsUploadHelper:AwsMultiImageUploadHelper = AwsMultiImageUploadHelper.init(region: region!, subRegion: subRegion!, identity: identityPoolId!, bucketName: bucket!, needFileProgressUpdateAlso: needProgressUpdate)
 
-                if(needMultipartUpload!){
+                if(!needMultipartUpload!){
                     multiAwsUploadHelper.uploadMultipleImages(imagesData:images, imageUploadSreamHelper:SwiftAmazonS3CognitoPlugin.imageUploadStreamHandler)
                 }else{
                     multiAwsUploadHelper.uploadVeryLargeFiles(imagesData:images, imageUploadSreamHelper:SwiftAmazonS3CognitoPlugin.imageUploadStreamHandler)

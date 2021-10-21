@@ -379,7 +379,7 @@ class AwsMultiImageUploadHelper{
         }
 
         let uploadExpression = AWSS3TransferUtilityMultiPartUploadExpression()
-        uploadExpression.setValue("AES256", forRequestHeader: "x-amz-server-side-encryption-customer-algorithm")
+
         uploadExpression.progressBlock = {(task, awsProgress) in
             guard let uploadProgress = progress else { return }
 
