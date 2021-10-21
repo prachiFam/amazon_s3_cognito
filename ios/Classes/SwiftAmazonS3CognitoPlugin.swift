@@ -146,7 +146,7 @@ private static  var imageUploadStreamHandler = ImageUploadStreamHandler()
 
 
             if(region == nil || subRegion == nil || bucket == nil || identityPoolId == nil  ){
-                result("function paramters are not supplied properly. Region, subregion, buckernamen identityPoolId cannot be null or empty")
+                result("function parameters are not supplied properly. Region, subregion, buckernamen identityPoolId cannot be null or empty")
             }else{
                 let multiAwsUploadHelper:AwsMultiImageUploadHelper = AwsMultiImageUploadHelper.init(region: region!, subRegion: subRegion!, identity: identityPoolId!, bucketName: bucket!, needFileProgressUpdateAlso: needProgressUpdate)
 
