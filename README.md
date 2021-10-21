@@ -110,15 +110,15 @@ String uploadedImageUrl = await AmazonS3Cognito.upload(String bucket, String ide
 
 
 ### Android
-
+```
 Inside AndroidManifest.xml register TransferService like below
 
  <application
  <service android:name= "com.amazonaws.mobileconnectors.s3.transferutility.TransferService" android:enabled="true" />
 </application>
-
+```
 ### iOS
-
+```
 inside your Appdelegate add following method
 
 func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String, completionHandler: @escaping () -> Void) {
@@ -130,7 +130,7 @@ for documentation further read
 https://docs.amplify.aws/sdk/storage/transfer-utility/q/platform/ios/#background-transfers
 
 https://aws.amazon.com/blogs/mobile/amazon-s3-transfer-utility-for-ios/
-
+```
 ### Authors
 ```
 the plugin is created and maintained by fäm properties. 

@@ -46,4 +46,5 @@ Breaking changes area added.
 4) for IOS app now uses TransferUtility API's, since TransferManager API's are depracated
 5) Now all methods take subFolder to which we want to upload/ delete image.
 
-
+## 0.7.3
+1) fixed issue that on IOS image upload was not working.
