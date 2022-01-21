@@ -48,3 +48,7 @@ Breaking changes area added.
 
 ## 0.7.3
 1) fixed issue that on IOS image upload was not working.
+
+## 0.7.4
+1) fixed bug - In case image upload failed due to file not found exception on android,
+then image upload did not succeed and app was not returning failure back incase of multiple image upload.
