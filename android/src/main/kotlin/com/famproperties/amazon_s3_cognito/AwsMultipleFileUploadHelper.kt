@@ -66,58 +66,68 @@ class AwsMultipleFileUploadHelper(private val context: Context,
         TransferNetworkLossHandler.getInstance(context.applicationContext)
 
         for(imageData in imagesData){
-            val file = File(imageData.filePath)
 
-            var key = imageData.fileName
+            try{
+                val file = File(imageData.filePath)
 
-            if(imageData.imageUploadFolder != null){
+                var key = imageData.fileName
 
-                key = if(imageData.imageUploadFolder!!.endsWith("/")){
-                    imageData.imageUploadFolder  + imageData.fileName
-                }else{
-                    "$imageData.imageUploadFolder /$imageData.fileName"
+                if(imageData.imageUploadFolder != null){
+
+                    key = if(imageData.imageUploadFolder!!.endsWith("/")){
+                        imageData.imageUploadFolder  + imageData.fileName
+                    }else{
+                        "$imageData.imageUploadFolder /$imageData.fileName"
+                    }
+
                 }
+
+                val transferObserver = transferUtility.upload(BUCKET_NAME, key, file)
+                imageData.isUploadInProgress = true
+                transferObserver.setTransferListener(object : TransferListener {
+                    override fun onStateChanged(id: Int, state: TransferState) {
+                        if (state == TransferState.COMPLETED) {
+                            imageData.isUploadInProgress = false
+                            imageData.amazonImageUrl = getUploadedUrl(key)
+                            imageData.state = "COMPLETED"
+                            imageUploadListener.sendToStream(imageData)
+
+                        }
+                        if (state == TransferState.FAILED ||  state == TransferState.WAITING_FOR_NETWORK) {
+                            imageData.isUploadInProgress = false
+                            imageData.isUploadError = true
+                            imageData.state = "FAILED OR WAITING_FOR_NETWORK"
+                            imageUploadListener.sendToStream(imageData)
+                        }
+                    }
+
+                    override fun onProgressChanged(id: Int, bytesCurrent: Long, bytesTotal: Long) {
+
+                        if(needProgressUpdateAlso){
+                            imageData.state = "FILE PROGRESS"
+                            imageData.progress = (bytesCurrent * 100)/bytesTotal
+
+                            imageUploadListener.sendToStream(imageData)
+                        }
+
+                    }
+                    override fun onError(id: Int, ex: Exception) {
+                        imageData.isUploadError = true
+                        imageData.state = "FAILURE"
+                        imageData.progress = 0
+                        imageUploadListener.sendToStream(imageData)
+                        Log.e(TAG, "error in upload id [ " + id + " ] : " + ex.message)
+
+                    }
+                })
+            }catch ( e:Exception) {
+                imageData.isUploadError = true
+                imageData.state = "FAILURE"
+                imageData.progress = 0
+                imageUploadListener.sendToStream(imageData)
+                Log.e(TAG, "error in upload id")
 
             }
-
-            val transferObserver = transferUtility.upload(BUCKET_NAME, key, file)
-            imageData.isUploadInProgress = true
-            transferObserver.setTransferListener(object : TransferListener {
-                override fun onStateChanged(id: Int, state: TransferState) {
-                    if (state == TransferState.COMPLETED) {
-                        imageData.isUploadInProgress = false
-                        imageData.amazonImageUrl = getUploadedUrl(key)
-                        imageData.state = "COMPLETED"
-                        imageUploadListener.sendToStream(imageData)
-
-                    }
-                    if (state == TransferState.FAILED ||  state == TransferState.WAITING_FOR_NETWORK) {
-                        imageData.isUploadInProgress = false
-                        imageData.isUploadError = true
-                        imageData.state = "FAILED OR WAITING_FOR_NETWORK"
-                        imageUploadListener.sendToStream(imageData)
-                    }
-                }
-
-                override fun onProgressChanged(id: Int, bytesCurrent: Long, bytesTotal: Long) {
-
-                    if(needProgressUpdateAlso){
-                        imageData.state = "FILE PROGRESS"
-                        imageData.progress = (bytesCurrent * 100)/bytesTotal
-
-                        imageUploadListener.sendToStream(imageData)
-                    }
-
-                }
-                override fun onError(id: Int, ex: Exception) {
-                    imageData.isUploadError = true
-                    imageData.state = "FAILURE"
-                    imageData.progress = 0
-                    imageUploadListener.sendToStream(imageData)
-                    Log.e(TAG, "error in upload id [ " + id + " ] : " + ex.message)
-
-                }
-            })
 
         }
     }
