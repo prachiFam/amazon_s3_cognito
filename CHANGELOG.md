@@ -55,3 +55,6 @@ then image upload did not succeed and app was not returning failure back incase 
 
 ## 0.7.5
 1) Plugin is compatible now with flutter 3.0 and above.
+
+## 0.7.6
+1) Fixed sdk constrainst
