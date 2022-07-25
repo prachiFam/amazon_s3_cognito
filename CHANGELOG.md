@@ -52,3 +52,6 @@ Breaking changes area added.
 ## 0.7.4
 1) fixed bug - In case image upload failed due to file not found exception on android,
 then image upload did not succeed and app was not returning failure back incase of multiple image upload.
+
+## 0.7.5
+1) Plugin is compatible now with flutter 3.0 and above.
