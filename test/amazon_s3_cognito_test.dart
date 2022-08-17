@@ -6,13 +6,21 @@ void main() {
   const MethodChannel channel = MethodChannel('amazon_s3_cognito');
 
   setUp(() {
-    channel.setMockMethodCallHandler((MethodCall methodCall) async {
-      return '42';
-    });
+    TestWidgetsFlutterBinding.ensureInitialized();
+
+    TestDefaultBinaryMessengerBinding.instance!.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      channel,
+      (message) async => '42',
+    );
   });
 
   tearDown(() {
-    channel.setMockMethodCallHandler(null);
+    TestDefaultBinaryMessengerBinding.instance!.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      channel,
+      (message) => null,
+    );
   });
 
   test('getPlatformVersion', () async {

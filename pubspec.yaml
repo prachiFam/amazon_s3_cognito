@@ -1,6 +1,6 @@
 name: amazon_s3_cognito
-description: This plugin allows users to list files, upload and delete image for amazon s3 cognito
-version: 0.6.0
+description: This plugin allows users to upload and delete image for amazon s3 cognito.Users can also upload multiple images ti s3 using the plugin.
+version: 0.7.6
 homepage: https://github.com/prachiFam/amazon_s3_cognito
 
 environment:
@@ -13,9 +13,12 @@ dependencies:
   flutter:
     sdk: flutter
 
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_lints: ^2.0.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
