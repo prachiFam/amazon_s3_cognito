@@ -58,3 +58,6 @@ then image upload did not succeed and app was not returning failure back incase 
 
 ## 0.7.6
 1) Fixed sdk constrainst
+
+## 0.7.7
+1) adding supported platform to the package.
