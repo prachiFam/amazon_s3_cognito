@@ -60,4 +60,10 @@ then image upload did not succeed and app was not returning failure back incase 
 1) Fixed sdk constrainst
 
 ## 0.7.7
-1) adding supported platform to the package.
+1) adding supported platform to the package. Supported platforms are IOS and Android
+
+## 0.7.8
+1) adding supported platform to the package. Supported platforms are IOS and Android
+
+## 0.8.0
+1) updated dart-sdk to 18.0

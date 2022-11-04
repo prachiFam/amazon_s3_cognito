@@ -1,27 +1,27 @@
 name: amazon_s3_cognito
 description: This plugin allows users to upload and delete image for amazon s3 cognito.Users can also upload multiple images ti s3 using the plugin.
-version: 0.7.7
+version: 0.8.0
 homepage: https://github.com/prachiFam/amazon_s3_cognito
 
 environment:
-  sdk: ">=2.12.0 <=2.17.5"
+  sdk: ">=2.12.0 <=2.20.5"
   # Flutter versions prior to 1.12 did not support the
   # flutter.plugin.platforms map.
   flutter: ">=1.12.0"
 
 # The following section is specific to Flutter.
-flutter:
+#flutter:
   # This section identifies this Flutter project as a plugin project.
   # The androidPackage and pluginClass identifiers should not ordinarily
   # be modified. They are used by the tooling to maintain consistency when
   # adding or updating assets for this project.
-  plugin:
-    platforms:
-      android:
-        package: com.famproperties.amazon_s3_cognito
-        pluginClass: AmazonS3CognitoPlugin
-      ios:
-        pluginClass: AmazonS3CognitoPlugin
+#  plugin:
+#    platforms:
+#      android:
+#        package: com.famproperties.amazon_s3_cognito
+#        pluginClass: AmazonS3CognitoPlugin
+#      ios:
+#        pluginClass: AmazonS3CognitoPlugin
 
 dependencies:
   flutter:
@@ -32,7 +32,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.0
+  flutter_lints: ^2.0.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
