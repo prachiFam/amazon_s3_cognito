@@ -13,7 +13,7 @@ To use this plugin, add `amazon_s3_cognito` as a [dependency in your pubspec.yam
 ```yaml
 dependencies:
 The package is android-x compatible
-  amazon_s3_cognito: '^0.7.4'
+  amazon_s3_cognito: '^0.7.9'
 ```
 
 ### Example
