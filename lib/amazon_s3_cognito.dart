@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 
 class AmazonS3Cognito {
   static const MethodChannel _channel =
-      const MethodChannel('amazon_s3_cognito');
+  const MethodChannel('amazon_s3_cognito');
 
   static Future<String?> get platformVersion async {
     final String? version = await _channel.invokeMethod('getPlatformVersion');
@@ -19,7 +19,7 @@ class AmazonS3Cognito {
       'identity': identity,
     };
     final String? imagePath =
-        await _channel.invokeMethod('uploadImageToAmazon', params);
+    await _channel.invokeMethod('uploadImageToAmazon', params);
     return imagePath;
   }
 
@@ -34,7 +34,7 @@ class AmazonS3Cognito {
       'subRegion': subRegion
     };
     final String? imagePath =
-        await _channel.invokeMethod('uploadImage', params);
+    await _channel.invokeMethod('uploadImage', params);
     return imagePath;
   }
 
@@ -48,7 +48,7 @@ class AmazonS3Cognito {
       'subRegion': subRegion
     };
     final String? imagePath =
-        await _channel.invokeMethod('deleteImage', params);
+    await _channel.invokeMethod('deleteImage', params);
     return imagePath;
   }
 
@@ -64,7 +64,7 @@ class AmazonS3Cognito {
     List<String> files = new List.empty(growable: true);
     try {
       List<dynamic> keys = await (_channel.invokeMethod('listFiles', params)
-          as FutureOr<List<dynamic>>);
+      as FutureOr<List<dynamic>>);
       for (String key in keys as Iterable<String>) {
         files.add("https://s3-$region.amazonaws.com/$bucket/$key");
       }
