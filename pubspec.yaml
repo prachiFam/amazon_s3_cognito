@@ -4,7 +4,7 @@ version: 0.8.1
 homepage: https://github.com/prachiFam/amazon_s3_cognito
 
 environment:
-  sdk: ">=2.12.0 <=4.0.0"
+  sdk: ">=2.12.0 <=5.0.0"
   # Flutter versions prior to 1.12 did not support the
   # flutter.plugin.platforms map.
   flutter: ">=1.12.0"
