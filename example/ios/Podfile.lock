@@ -1,34 +1,38 @@
 PODS:
-  - amazon_s3_cognito (0.1.8):
+  - amazon_s3_cognito (0.3.0):
+    - AWSCognito
     - AWSCore
     - AWSS3
     - Flutter
+  - AWSCognito (2.12.2):
+    - AWSCore (= 2.12.2)
   - AWSCore (2.12.2)
   - AWSS3 (2.12.2):
     - AWSCore (= 2.12.2)
-  - Flutter (1.0.0)
+  - Flutter (2.5)
 
 DEPENDENCIES:
   - amazon_s3_cognito (from `.symlinks/plugins/amazon_s3_cognito/ios`)
-  - Flutter (from `.symlinks/flutter/ios`)
 
 SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
+  https://github.com/CocoaPods/Specs.git:
     - AWSCore
     - AWSS3
+  trunk:
+    - AWSCognito
+    - Flutter
 
 EXTERNAL SOURCES:
   amazon_s3_cognito:
     :path: ".symlinks/plugins/amazon_s3_cognito/ios"
-  Flutter:
-    :path: ".symlinks/flutter/ios"
 
 SPEC CHECKSUMS:
-  amazon_s3_cognito: 997406fc9af4a59d8a371ba8ca85be1abe160bf5
+  amazon_s3_cognito: aa032542606f3bf7a8a9b004da1d5cb747138507
+  AWSCognito: 2f8c365d5089de54245d7d971749682c1126e381
   AWSCore: bdc0933bcb1aca4a9af3352a9e6ec75b339faf71
   AWSS3: 3ab1e1b25d3522d7745efd2a57a98a86d7524bd5
-  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  Flutter: 4e094eefe76d76f60537272587a6eb1abcf12d09
 
 PODFILE CHECKSUM: b6a0a141693093b304368d08511b46cf3d1d0ac5
 
-COCOAPODS: 1.7.3
+COCOAPODS: 1.10.1
