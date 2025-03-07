@@ -68,8 +68,9 @@ then image upload did not succeed and app was not returning failure back incase 
 ## 0.7.9
 1) updated dart-sdk
 
-## 0.8.0
+## 0.8.5
 1) updated dart-sdk
+2) updated all classes to use transfer utility.
 
 
 
