@@ -71,10 +71,9 @@ then image upload did not succeed and app was not returning failure back incase 
 ## 0.8.0
 1) updated dart-sdk
 
-## 0.8.1
-1) updated dart-sdk
 
-## 0.8.2
-1) added package name
+
+## 0.8.4
+1. updates for newer sdk.
 
 
