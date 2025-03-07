@@ -27,101 +27,92 @@ class AwsImageUploadHelper{
     func uploadImageForRegion(imagePath:String?, bucket:String?,identity:String?,fileName:String?,
                               region:String?,subRegion:String?,
                               contentTypeParam:String?,
-                              imageUploadResult:@escaping  (String)->()){
-        
-        if(region != nil && subRegion != nil){
-            initRegions(region: region!, subRegion: subRegion!)
-        }
-        
-        let credentialsProvider = AWSCognitoCredentialsProvider(
-            regionType: region1,
-            identityPoolId: identity!)
-        let configuration = AWSServiceConfiguration(
-            region: subRegion1,
-            credentialsProvider: credentialsProvider)
-        AWSServiceManager.default().defaultServiceConfiguration = configuration
-        
-        
-        var imageAmazonUrl = ""
-        let fileUrl = NSURL(fileURLWithPath: imagePath!)
-        
-        let uploadRequest = AWSS3TransferManagerUploadRequest()
-        uploadRequest?.bucket = bucket
-        uploadRequest?.key = fileName
-        
-        
-        var contentType = "image/jpeg"
-        if(contentTypeParam != nil &&
-            contentTypeParam!.count > 0){
-            contentType = contentTypeParam!
-        }
-        
-        if(contentTypeParam == nil || contentTypeParam!.count == 0 &&  fileName!.contains(".")){
-            var index = fileName!.lastIndex(of: ".")
-            index = fileName!.index(index!, offsetBy: 1)
-            if(index != nil){
-                let extention = String(fileName![index!...])
-                print("extension"+extention);
-                if(extention.lowercased().contains("png") ||
-                    extention.lowercased().contains("jpg") ||
-                    extention.lowercased().contains("jpeg") ){
-                    contentType = "image/"+extention
-                }else{
-                    
-                    if(extention.lowercased().contains("pdf")){
-                        contentType = "application/pdf"
-                    }else{
-                        contentType = "application/*"
-                    }
-                    
-                }
-                
-            }
-        }
-        
-        uploadRequest?.contentType = contentType
-        
-        uploadRequest?.body = fileUrl as URL
-        
-        uploadRequest?.acl = .publicReadWrite
-        
-        AWSS3TransferManager.default().upload(uploadRequest!).continueWith { (task) -> AnyObject? in
-            if let error = task.error {
-                
-                imageUploadResult("❌ Upload failed (\(error))")
-                print("❌ Upload failed (\(error))")
-            }
-            
-            
-            if task.result != nil {
-                
-                //                        imageAmazonUrl = "https://s3-" + self.subRegion1.stringValue +  ".amazonaws.com/\(bucket!)/\(uploadRequest!.key!)"
-                //
-                imageAmazonUrl = AWSS3.default().configuration.endpoint.url.description + "/\(bucket!)/\(uploadRequest!.key!)"
-                
-                print("✅ Upload successed (\(imageAmazonUrl))")
-                
-                
-                
-                imageUploadResult(imageAmazonUrl)
-                
-            } else {
-                imageUploadResult("❌ Upload failed (Unexpected empty result.)")
-                print("❌ Unexpected empty result.")
-            }
+                              imageUploadResult:@escaping  (String)->())
+    {
 
-            return nil
-        }
+
+        if(region != nil && subRegion != nil){
+               initRegions(region: region!, subRegion: subRegion!)
+           }
+
+           let credentialsProvider = AWSCognitoCredentialsProvider(
+               regionType: region1,
+               identityPoolId: identity!)
+           let configuration = AWSServiceConfiguration(
+               region: subRegion1,
+               credentialsProvider: credentialsProvider)
+           AWSServiceManager.default().defaultServiceConfiguration = configuration
+
+           var imageAmazonUrl = ""
+           guard let fileUrl = URL(string: imagePath!) else {
+               imageUploadResult("❌ Invalid file path")
+               return
+           }
+
+           // Determine content type
+           var contentType = "image/jpeg"
+           if let contentTypeParam = contentTypeParam, !contentTypeParam.isEmpty {
+               contentType = contentTypeParam
+           } else if let fileName = fileName, fileName.contains(".") {
+               let ext = fileName.split(separator: ".").last!.lowercased()
+               if ["png", "jpg", "jpeg"].contains(ext) {
+                   contentType = "image/\(ext)"
+               } else if ext == "pdf" {
+                   contentType = "application/pdf"
+               } else {
+                   contentType = "application/*"
+               }
+           }
+
+           let expression = AWSS3TransferUtilityUploadExpression()
+           expression.progressBlock = { (task, progress) in
+               DispatchQueue.main.async {
+                   // Update UI with progress
+                   print("Upload progress: \(progress.fractionCompleted)")
+               }
+           }
+
+           let completionHandler: AWSS3TransferUtilityUploadCompletionHandlerBlock = { (task, error) in
+               DispatchQueue.main.async {
+                   if let error = error {
+                       imageUploadResult("❌ Upload failed (\(error))")
+                       print("❌ Upload failed (\(error))")
+                   } else {
+                       imageAmazonUrl = AWSS3.default().configuration.endpoint.url.description + "/\(bucket!)/\(fileName!)"
+                       print("✅ Upload succeeded (\(imageAmazonUrl))")
+                       imageUploadResult(imageAmazonUrl)
+                   }
+               }
+           }
+
+           let transferUtility = AWSS3TransferUtility.default()
+           transferUtility.uploadFile(fileUrl,
+                                    bucket: bucket!,
+                                    key: fileName!,
+                                    contentType: contentType,
+                                    expression: expression,
+                                    completionHandler: completionHandler).continueWith { (task) -> Any? in
+               if let error = task.error {
+                   print("Error: \(error)")
+                   imageUploadResult("❌ Upload failed (\(error))")
+                   print("❌ Upload failed (\(error))")
+               }
+               if let _ = task.result {
+                   print("Upload Starting!")
+               }
+               return nil
+           }
+
     }
-    
+
     func deleteImage(bucket:String?,identity:String?,fileName:String?,
                      region:String?, subRegion:String?,
                      imageDeleteResult:@escaping  (String)->()){
-        
+
         if(region != nil && subRegion != nil){
             initRegions(region: region!, subRegion: subRegion!)
         }
-        
+
         let credentialsProvider = AWSCognitoCredentialsProvider(
             regionType: region1,
             identityPoolId: identity!)
@@ -129,7 +120,7 @@ class AwsImageUploadHelper{
             region: subRegion1,
             credentialsProvider: credentialsProvider)
         AWSServiceManager.default().defaultServiceConfiguration = configuration
-        
+
         AWSS3.register(with: configuration!, forKey: "defaultKey")
         let s3 = AWSS3.s3(forKey: "defaultKey")
         let deleteObjectRequest = AWSS3DeleteObjectRequest()
