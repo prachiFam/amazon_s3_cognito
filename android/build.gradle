@@ -30,8 +30,8 @@ apply plugin: 'kotlin-android'
 
 android {
 
-    namespace 'com.famproperties.amazon_s3_cognito'
-    compileSdkVersion 31
+//    namespace 'com.famproperties.amazon_s3_cognito'
+    compileSdkVersion 34
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -46,7 +46,7 @@ android {
         main.java.srcDirs += 'src/main/kotlin'
     }
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 24
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     lintOptions {
