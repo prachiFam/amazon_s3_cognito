@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:amazon_s3_cognito/amazon_s3_cognito.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   const MethodChannel channel = MethodChannel('amazon_s3_cognito');
 
   setUp(() {

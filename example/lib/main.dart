@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:html';
 
 import 'package:amazon_s3_cognito/amazon_s3_cognito.dart';
 import 'package:amazon_s3_cognito/image_data.dart';
