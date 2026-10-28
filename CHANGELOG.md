@@ -86,3 +86,6 @@ then image upload did not succeed and app was not returning failure back incase 
 4. iOS: Swift Package Manager support (CocoaPods still works); minimum iOS is now 13.
 5. iOS: uploadImages now returns "Uploaded started successfully" like Android; unknown methods return notImplemented.
 6. Requires Dart >=3.0.0 and Flutter >=3.10.0.
+
+## 0.9.1
+1. Android: fixed S3 uploads failing in release builds with R8 ("Cannot create an instance of AWSS3V4Signer"). 0.9.0 narrowed the consumer R8 rules too far; the AWS SDK keep rules are restored. Upgrade from 0.9.0 if your app uses minify/R8.

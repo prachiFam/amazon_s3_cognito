@@ -3,7 +3,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'amazon_s3_cognito'
-  s.version          = '0.9.0'
+  s.version          = '0.9.1'
   s.summary          = 'This plugin allows users to  upload and delete files on amazon s3 storage'
   s.description      = <<-DESC
 This plugin allows users to list, upload and delete image for amazon s3 cognito

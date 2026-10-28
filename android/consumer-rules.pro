@@ -1,7 +1,8 @@
-# AWS SDK for Android maps enums and model classes by name at runtime.
-# Kept narrow on purpose: a blanket "-keep class com.amazonaws.** { *; }" would turn off
-# R8 shrinking/optimization for the whole SDK in consuming apps.
--keepclassmembers enum com.amazonaws.** { *; }
+# AWS SDK for Android creates signers, HTTP clients and config objects by reflection
+# (Class.newInstance, e.g. AWSS3V4Signer) and maps enums/models by name. These are the
+# keep rules the SDK recommends; narrower rules broke S3 uploads in release builds.
+-keep class com.amazonaws.** { *; }
+-keepnames class com.amazonaws.** { *; }
 -dontwarn com.amazonaws.**
 -dontwarn com.fasterxml.jackson.databind.**
 -dontwarn org.apache.commons.logging.**
