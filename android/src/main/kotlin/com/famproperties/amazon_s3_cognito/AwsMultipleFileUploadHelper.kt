@@ -75,9 +75,9 @@ class AwsMultipleFileUploadHelper(private val context: Context,
                 if(imageData.imageUploadFolder != null){
 
                     key = if(imageData.imageUploadFolder!!.endsWith("/")){
-                        imageData.imageUploadFolder  + imageData.fileName
+                        imageData.imageUploadFolder + imageData.fileName
                     }else{
-                        "$imageData.imageUploadFolder /$imageData.fileName"
+                        "${imageData.imageUploadFolder}/${imageData.fileName}"
                     }
 
                 }

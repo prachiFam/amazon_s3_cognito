@@ -1,15 +1,12 @@
 package com.famproperties.amazon_s3_cognito
 
 import android.content.Context
-import android.os.AsyncTask
 import android.util.Log
 import com.amazonaws.auth.CognitoCachingCredentialsProvider
-import com.amazonaws.mobile.config.AWSConfiguration
 import com.amazonaws.mobileconnectors.s3.transferutility.*
 import com.amazonaws.regions.Region
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.s3.AmazonS3Client
-import com.amazonaws.services.s3.model.S3ObjectSummary
 import java.io.File
 import java.io.UnsupportedEncodingException
 

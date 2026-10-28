@@ -4,7 +4,8 @@ import AWSS3
 import AWSCore
 
 
-public class SwiftAmazonS3CognitoPlugin: NSObject, FlutterPlugin {
+@objc(AmazonS3CognitoPlugin)
+public class AmazonS3CognitoPlugin: NSObject, FlutterPlugin {
 
 private static let imageUploadEventChannel:String = "amazon_s3_cognito_images_upload_steam"
 
@@ -17,7 +18,7 @@ private static  var imageUploadStreamHandler = ImageUploadStreamHandler()
     FlutterEventChannel(name: imageUploadEventChannel, binaryMessenger: registrar.messenger())
         .setStreamHandler(imageUploadStreamHandler)
 
-    let instance = SwiftAmazonS3CognitoPlugin()
+    let instance = AmazonS3CognitoPlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
 
   }
@@ -29,6 +30,8 @@ private static  var imageUploadStreamHandler = ImageUploadStreamHandler()
               deleteImage(call,result: result)
           }else if(call.method.elementsEqual("uploadImages")){
             uploadMultipleImages(call,result: result)
+        }else{
+            result(FlutterMethodNotImplemented)
         }
       }
 
@@ -151,10 +154,11 @@ private static  var imageUploadStreamHandler = ImageUploadStreamHandler()
                 let multiAwsUploadHelper:AwsMultiImageUploadHelper = AwsMultiImageUploadHelper.init(region: region!, subRegion: subRegion!, identity: identityPoolId!, bucketName: bucket!, needFileProgressUpdateAlso: needProgressUpdate)
 
                 if(!needMultipartUpload!){
-                    multiAwsUploadHelper.uploadMultipleImages(imagesData:images, imageUploadSreamHelper:SwiftAmazonS3CognitoPlugin.imageUploadStreamHandler)
+                    multiAwsUploadHelper.uploadMultipleImages(imagesData:images, imageUploadSreamHelper:AmazonS3CognitoPlugin.imageUploadStreamHandler)
                 }else{
-                    multiAwsUploadHelper.uploadVeryLargeFiles(imagesData:images, imageUploadSreamHelper:SwiftAmazonS3CognitoPlugin.imageUploadStreamHandler)
+                    multiAwsUploadHelper.uploadVeryLargeFiles(imagesData:images, imageUploadSreamHelper:AmazonS3CognitoPlugin.imageUploadStreamHandler)
                 }
+                result("Uploaded started successfully")
 
             }
         }else{

@@ -2,15 +2,14 @@ group 'com.famproperties.amazon_s3_cognito'
 version '0.3.1'
 
 buildscript {
-    ext.kotlin_version = '1.6.10'
+    ext.kotlin_version = '2.3.20'
     repositories {
         google()
-        jcenter()
         mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.1.2'
+        classpath 'com.android.tools.build:gradle:9.0.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -18,7 +17,6 @@ buildscript {
 rootProject.allprojects {
     repositories {
         google()
-        jcenter()
         mavenCentral()
     }
 }
@@ -29,33 +27,30 @@ apply plugin: 'kotlin-android'
 android {
 
     namespace 'com.famproperties.amazon_s3_cognito'
-    compileSdkVersion 34
+    compileSdk 36
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
     defaultConfig {
-        minSdkVersion 24
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        minSdk 24
+        consumerProguardFiles 'consumer-rules.pro'
     }
-    lintOptions {
+    lint {
         disable 'InvalidPackage'
     }
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'com.amazonaws:aws-android-sdk-core:2.32.0'
-    implementation 'com.amazonaws:aws-android-sdk-s3:2.32.0'
-//    implementation 'com.amplifyframework:aws-storage-s3:1.28.0'
-//    implementation 'com.amplifyframework:aws-auth-cognito:1.28.0'
+    implementation 'com.amazonaws:aws-android-sdk-core:2.81.1'
+    implementation 'com.amazonaws:aws-android-sdk-s3:2.81.1'
 }

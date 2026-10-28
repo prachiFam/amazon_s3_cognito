@@ -2,7 +2,6 @@ package com.famproperties.amazon_s3_cognito
 
 import android.app.Activity
 import android.content.Context
-import com.google.gson.JsonObject
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
