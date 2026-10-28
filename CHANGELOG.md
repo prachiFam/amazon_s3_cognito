@@ -78,3 +78,11 @@ then image upload did not succeed and app was not returning failure back incase 
 1. updates for newer sdk.
 
 
+
+## 0.9.0
+1. Android: supports AGP 9 and Gradle 9.1 (Kotlin 2.3, Java 17, compileSdk 36), AWS SDK 2.81.1.
+2. Android: ships R8 consumer rules and declares TransferService in the plugin manifest, so release builds with shrinking work without extra app config.
+3. Android: fixed the S3 key for multi-uploads into a folder given without a trailing slash.
+4. iOS: Swift Package Manager support (CocoaPods still works); minimum iOS is now 13.
+5. iOS: uploadImages now returns "Uploaded started successfully" like Android; unknown methods return notImplemented.
+6. Requires Dart >=3.0.0 and Flutter >=3.10.0.

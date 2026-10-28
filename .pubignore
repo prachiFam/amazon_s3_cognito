@@ -1,0 +1,18 @@
+.idea
+.DS_Store
+.dart_tool/
+
+.packages
+.pub/
+
+build/
+.idea/
+example/.flutter-plugins-dependencies
+example/ios/Flutter/flutter_export_environment.sh
+
+# generated / IDE files that must not be published
+*.iml
+android/.idea/
+example/ios/Flutter/ephemeral/
+example/android/.gradle/
+example/android/local.properties
